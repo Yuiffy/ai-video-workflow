@@ -1,6 +1,7 @@
 config.json
 outputs/
 outputs*/
+projects/development-history-v3-source/
 .venv/
 __pycache__/
 *.pyc
