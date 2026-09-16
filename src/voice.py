@@ -15,6 +15,29 @@ def phrases(text: str) -> list[str]:
             textwrap.wrap(chunk, 32, break_long_words=True, break_on_hyphens=False) if part.strip()]
 
 
+def authored_cues(text: str, seconds: float) -> list[dict]:
+    """Split a source recording into readable authored sentences.
+
+    Dreamina audio exports do not expose character timestamps through this
+    workflow. Allocate each sentence by its weighted character count so the
+    subtitle remains one readable thought per cue instead of one large paragraph.
+    """
+    parts = [part.strip() for part in re.findall(
+        r"[^，。！？；,.!?;]+[，。！？；,.!?;]?", text) if part.strip()]
+    if not parts:
+        return [{"text": text, "start": 0.0, "end": seconds}]
+    weights = [max(1, len(re.sub(r"s+", "", part))) for part in parts]
+    total = sum(weights)
+    position_weight = 0
+    cues = []
+    for index, (part, weight) in enumerate(zip(parts, weights)):
+        start = seconds * position_weight / total
+        position_weight += weight
+        end = seconds if index == len(parts) - 1 else seconds * position_weight / total
+        cues.append({"text": part, "start": start, "end": end})
+    return cues
+
+
 def produce_voice(scene, output: Path, config: dict, generated_audio: Path | None = None) -> Path:
     cfg = config["rvc"]
     client = RvcClient(cfg)
@@ -37,7 +60,7 @@ def produce_voice(scene, output: Path, config: dict, generated_audio: Path | Non
     captions = []
     if source:
         normalize_audio(ffmpeg, source, raw)
-        captions = [{"text": scene.narration, "start": 0, "end": duration(raw, ffprobe)}]
+        captions = authored_cues(scene.narration, duration(raw, ffprobe))
     else:
         position = 0
         sources = []
@@ -65,6 +88,6 @@ def produce_voice(scene, output: Path, config: dict, generated_audio: Path | Non
     temporary.replace(target)
     write_json(metadata, {"fingerprint": fingerprint, "sha256": file_digest(target),
                          "duration": seconds, "conversion": conversion,
-                         "caption_timing": "source-chunks" if not source else "scene-only",
+                         "caption_timing": "source-chunks" if not source else "authored-proportional",
                          "captions": captions})
     return target
