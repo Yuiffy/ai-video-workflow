@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import subprocess
+import textwrap
 from pathlib import Path
 
 from .media import require_ffmpeg
@@ -15,7 +16,8 @@ def render_draft(project: Project, output: Path, ffmpeg_bin: str = "ffmpeg") -> 
     lines: list[str] = []
     for index, scene in enumerate(project.scenes, 1):
         text_file = work / f"{index:02d}.txt"
-        text_file.write_text(f"{scene.title}\n\n{scene.narration}", encoding="utf-8")
+        wrapped = "\n".join(textwrap.wrap(scene.narration, width=30, break_long_words=True, break_on_hyphens=False))
+        text_file.write_text(f"{scene.title}\n\n{wrapped}", encoding="utf-8")
         clip = work / f"{index:02d}.mp4"
         # A deterministic silent draft: generated shots and RVC audio can replace each scene later.
         font = "C\\:/Windows/Fonts/msyh.ttc"
