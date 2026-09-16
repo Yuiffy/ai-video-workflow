@@ -19,7 +19,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -34,7 +35,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -49,7 +51,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -64,7 +67,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -79,7 +83,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -94,7 +99,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -109,7 +115,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -124,7 +131,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -139,7 +147,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -154,7 +163,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -169,7 +179,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -184,7 +195,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -199,7 +211,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -214,7 +227,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -229,7 +243,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -244,7 +259,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -259,7 +275,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     },
     {
@@ -274,7 +291,8 @@
       "voice": {
         "use_generated_audio": false,
         "already_target_voice": false,
-        "source_audio": null
+        "source_audio": null,
+        "pitch": 4
       }
     }
   ]
