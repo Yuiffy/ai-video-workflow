@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import time
 from pathlib import Path
 from uuid import uuid4
 
@@ -27,6 +28,18 @@ def write_json(path: Path, value):
     temporary = path.with_name(path.name + "." + uuid4().hex + ".tmp")
     try:
         temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
-        os.replace(temporary, path)
+        last_error = None
+        for attempt in range(4):
+            try:
+                os.replace(temporary, path)
+                last_error = None
+                break
+            except PermissionError as error:
+                last_error = error
+                if attempt == 3:
+                    raise
+                time.sleep(0.25 * (attempt + 1))
+        if last_error is not None:
+            raise last_error
     finally:
         temporary.unlink(missing_ok=True)
