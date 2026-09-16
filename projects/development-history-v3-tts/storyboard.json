@@ -1,0 +1,78 @@
+{
+  "project_id": "luben-warm-reply-history-v3",
+  "format": "16:9",
+  "chapters": [
+    {
+      "id": "intro",
+      "title": "本期要讲的，不只是“AI 会写晚安”"
+    },
+    {
+      "id": "overview",
+      "title": "先看全貌：录播结束以后发生什么"
+    },
+    {
+      "id": "origin",
+      "title": "本来只是想写一句晚安"
+    },
+    {
+      "id": "context_limit",
+      "title": "上下文装不下，怎么办"
+    },
+    {
+      "id": "short_context",
+      "title": "短一点，反而更容易写好"
+    },
+    {
+      "id": "full_context",
+      "title": "模型变强，取舍也要重做"
+    },
+    {
+      "id": "warm_prompt",
+      "title": "暖心，不是多加几句夸奖"
+    },
+    {
+      "id": "prompt_boundaries",
+      "title": "一句自然的话，背后也有边界"
+    },
+    {
+      "id": "comic_script",
+      "title": "先当编剧，再请画师"
+    },
+    {
+      "id": "references",
+      "title": "画得像，还要画得对"
+    },
+    {
+      "id": "wrong_game",
+      "title": "她爱玩，不等于今晚就在玩"
+    },
+    {
+      "id": "image_models",
+      "title": "模型升级，中文终于能入画"
+    },
+    {
+      "id": "composition",
+      "title": "同一场直播，两种讲法"
+    },
+    {
+      "id": "multi_people",
+      "title": "从一个人，到一群不同的人"
+    },
+    {
+      "id": "false_guests",
+      "title": "一个表情包，也会让 AI 串台"
+    },
+    {
+      "id": "timing",
+      "title": "生成好了，也不一定马上发"
+    },
+    {
+      "id": "reliability",
+      "title": "重试一次，不能多发一遍"
+    },
+    {
+      "id": "ending",
+      "title": "713 次提交，还是同一个出发点"
+    }
+  ]
+}
