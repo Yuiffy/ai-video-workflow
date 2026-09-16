@@ -1,0 +1,56 @@
+{
+  "id": "luben-warm-reply-history-001",
+  "title": "鹿饼暖心回复发展史",
+  "description": "从人工让 GPT 网页写一封暖心回复，到可审阅、可复用的直播 AI 视频工作流。",
+  "script": "script.md",
+  "ppt": "ppt/index.html",
+  "storyboard": "storyboard.json",
+  "output": "outputs",
+  "scenes": [
+    {
+      "id": "opening",
+      "title": "一条回复的起点",
+      "narration": "最开始，我们只是人工打开 GPT 网页，把想说的话整理成提示词，再请它帮忙写一段暖心回复。那时每一条都很认真，但每一次也都要从头开始。",
+      "visual": "温暖的夜晚书桌，浏览器窗口里是一段正在生成的中文暖心文字，桌边有鹿形饼干和柔和台灯，电影感，16:9",
+      "image_prompt": "cinematic warm night desk, browser window with Chinese supportive message being drafted, deer shaped cookie, soft lamp, gentle documentary mood, no readable UI text, 16:9",
+      "duration": 10,
+      "ppt_slide": 1
+    },
+    {
+      "id": "manual-to-template",
+      "title": "从手工到模板",
+      "narration": "随着回复越来越多，我们把称呼、事实、语气和公开范围写成固定提示词。写作不再只靠临场发挥，而是有了可以复用、可以检查的边界。",
+      "visual": "纸张上的提示词逐渐变成结构化模板，章节线条从手写变成清晰的时间轴",
+      "image_prompt": "editorial animation of handwritten notes becoming a clean structured prompt template and timeline, warm cream paper, teal accent, documentary explainer, 16:9",
+      "duration": 10,
+      "ppt_slide": 2
+    },
+    {
+      "id": "summary-ts",
+      "title": "summary-ts 出现",
+      "narration": "后来，这些经验被放进 danmaku-to-summary-ts。系统开始接收录播完成事件，完成视频合并、语音识别、字幕整理、AI 总结，再把结果交给人检查。",
+      "visual": "直播录播文件进入流水线，经过 ASR、字幕、总结和审核节点，最终变成一张清晰的流程图",
+      "image_prompt": "clean cinematic data pipeline, livestream recording entering ASR subtitles summary and human review nodes, teal and coral accents, Chinese tech documentary, 16:9",
+      "duration": 12,
+      "ppt_slide": 3
+    },
+    {
+      "id": "media-workflow",
+      "title": "从文字走向视频",
+      "narration": "再往前一步，我们不只生成文字。剧本可以拆成分镜，知识点可以先做成网页 PPT，再录成讲解画面；旁白交给本地 RVC，画面交给即梦，最后由 FFmpeg 合成。",
+      "visual": "网页 PPT、声波、视频片段和渲染进度汇聚成一条视频生产线",
+      "image_prompt": "modern local AI video production line, web presentation slides, voice waveform, generated video shots and ffmpeg render timeline converging, premium explainer style, 16:9",
+      "duration": 12,
+      "ppt_slide": 4
+    },
+    {
+      "id": "closing",
+      "title": "鹿饼的下一条回复",
+      "narration": "所以，这段历史的重点不是某一个模型，而是把一次次真诚的人工尝试，变成能被复用、能被审阅、也能继续长大的工作流。下一条视频，就从这里开始。",
+      "visual": "鹿饼形象站在由代码、字幕和胶片组成的温暖舞台上，向观众挥手，留出片尾字幕空间",
+      "image_prompt": "warm hopeful closing shot, cute deer biscuit mascot on a stage made of code subtitles and film strips, waving to audience, clean negative space for end title, 16:9",
+      "duration": 10,
+      "ppt_slide": 5
+    }
+  ]
+}

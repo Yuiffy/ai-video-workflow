@@ -1,0 +1,11 @@
+{
+  "project_id": "luben-warm-reply-history-001",
+  "format": "16:9",
+  "chapters": [
+    {"scene_id": "opening", "kind": "web_ppt+generated_shot", "source": "人工让 GPT 网页写暖心回复", "transition": "fade"},
+    {"scene_id": "manual-to-template", "kind": "web_ppt+generated_shot", "source": "提示词模板和人工审核边界", "transition": "match-cut"},
+    {"scene_id": "summary-ts", "kind": "web_ppt+generated_shot", "source": "danmaku-to-summary-ts 录播后处理", "transition": "timeline-wipe"},
+    {"scene_id": "media-workflow", "kind": "web_ppt+generated_shot", "source": "RVC、即梦、FFmpeg 组成视频工作流", "transition": "audio-bridge"},
+    {"scene_id": "closing", "kind": "web_ppt+generated_shot", "source": "可复用、可审阅、可继续成长", "transition": "fade-out"}
+  ]
+}

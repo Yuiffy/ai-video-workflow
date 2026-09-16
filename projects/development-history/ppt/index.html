@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>鹿饼暖心回复发展史</title>
+  <style>
+    :root { --ink:#102329; --muted:#52676c; --cream:#f7f1e8; --teal:#0e6970; --coral:#e36f52; --gold:#d6a85d; }
+    * { box-sizing:border-box } body { margin:0; overflow:hidden; background:var(--cream); color:var(--ink); font-family: Georgia, "Noto Serif SC", serif; }
+    main { width:100vw; height:100vh; position:relative; }
+    .slide { position:absolute; inset:0; padding:7vh 9vw; display:grid; grid-template-columns:1fr 1fr; align-items:center; opacity:0; transform:translateY(18px) scale(.99); transition:opacity .7s ease, transform .7s ease; }
+    .slide.active { opacity:1; transform:none; }
+    .copy { max-width:620px; } .kicker { color:var(--coral); letter-spacing:.18em; font:600 14px/1.4 ui-sans-serif,system-ui; text-transform:uppercase; }
+    h1 { font-size:clamp(48px,6vw,98px); line-height:.98; letter-spacing:-.05em; margin:18px 0 24px; } h2 { font-size:clamp(38px,4vw,70px); line-height:1.05; margin:16px 0; }
+    p { max-width:560px; color:var(--muted); font:400 clamp(18px,1.45vw,27px)/1.7 ui-sans-serif,system-ui; }
+    .art { height:66vh; position:relative; display:grid; place-items:center; } .orb { width:min(32vw,470px); aspect-ratio:1; border-radius:50%; background:radial-gradient(circle at 34% 28%,#fff8df 0 8%,#f5cf85 9% 30%,#d9895f 31% 53%,#0e6970 54% 100%); box-shadow:24px 32px 0 #10232918; animation:float 5s ease-in-out infinite; }
+    .orb::after { content:"鹿饼"; position:absolute; color:#fff8df; font-size:clamp(42px,5vw,78px); transform:rotate(-12deg); letter-spacing:.12em; }
+    .line { position:absolute; width:78%; height:1px; background:var(--gold); transform:rotate(-24deg); } .line.two { transform:rotate(24deg); width:52%; background:var(--coral); }
+    .timeline { position:absolute; left:9vw; right:9vw; bottom:6vh; display:flex; gap:10px; } .dot { height:5px; flex:1; background:#c5d1cf; } .dot.active { background:var(--coral); }
+    .stamp { position:absolute; right:5vw; top:5vh; writing-mode:vertical-rl; color:#7d9390; letter-spacing:.2em; font:12px ui-sans-serif,system-ui; }
+    @keyframes float { 0%,100% { transform:translateY(0) rotate(-4deg) } 50% { transform:translateY(-13px) rotate(4deg) } }
+    @media (max-width:800px) { .slide { grid-template-columns:1fr; padding:8vh 8vw; } .art { height:28vh; } .orb { width:42vw; } h1 { font-size:17vw; } p { font-size:16px; } }
+  </style>
+</head>
+<body>
+<main id="deck">
+  <section class="slide active" data-slide="1"><div class="copy"><div class="kicker">01 / 起点</div><h1>一条回复的起点</h1><p>最开始，我们只是人工打开 GPT 网页，把想说的话整理成提示词，再请它帮忙写一段暖心回复。</p></div><div class="art"><i class="line"></i><i class="line two"></i><div class="orb"></div></div></section>
+  <section class="slide" data-slide="2"><div class="copy"><div class="kicker">02 / 方法</div><h2>从手工到模板</h2><p>称呼、事实、语气和公开范围被写成固定提示词，让每一次真诚都有可以复用、可以检查的边界。</p></div><div class="art"><i class="line"></i><i class="line two"></i><div class="orb"></div></div></section>
+  <section class="slide" data-slide="3"><div class="copy"><div class="kicker">03 / 系统</div><h2>summary-ts 出现</h2><p>录播完成事件、语音识别、字幕整理、AI 总结，再把结果交给人检查，一条生产线开始成形。</p></div><div class="art"><i class="line"></i><i class="line two"></i><div class="orb"></div></div></section>
+  <section class="slide" data-slide="4"><div class="copy"><div class="kicker">04 / 视频</div><h2>从文字走向视频</h2><p>网页 PPT 负责知识结构，本地 RVC 负责旁白，即梦负责画面，FFmpeg 把它们合成一条可发布的视频。</p></div><div class="art"><i class="line"></i><i class="line two"></i><div class="orb"></div></div></section>
+  <section class="slide" data-slide="5"><div class="copy"><div class="kicker">05 / 下一步</div><h2>鹿饼的下一条回复</h2><p>把一次次真诚的人工尝试，变成能被复用、能被审阅、也能继续长大的工作流。</p></div><div class="art"><i class="line"></i><i class="line two"></i><div class="orb"></div></div></section>
+  <div class="stamp">AI VIDEO WORKFLOW · 2026</div><nav class="timeline" aria-label="slides"><i class="dot active"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i></nav>
+</main>
+<script>
+  const slides=[...document.querySelectorAll('[data-slide]')], dots=[...document.querySelectorAll('.dot')]; let current=0;
+  function show(n){ current=(n+slides.length)%slides.length; slides.forEach((s,i)=>s.classList.toggle('active',i===current)); dots.forEach((d,i)=>d.classList.toggle('active',i===current)); }
+  window.startRecording=()=>{ let i=0; setInterval(()=>show(++i),7000); };
+  window.addEventListener('keydown',e=>{ if(e.key==='ArrowRight'||e.key===' ')show(current+1); if(e.key==='ArrowLeft')show(current-1); });
+</script>
+</body>
+</html>
