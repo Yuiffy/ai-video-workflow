@@ -11,6 +11,20 @@
 漫画参考、两种构图、多人配置和发送时机，配套可按时间播放的原理动画。
 [纯音频实验](docs/dreamina-audio.md)区分 Canvas TTS、suiV2 变声与 Seedance 音频参考。
 
+当前的 V3 草稿拆成 [Dreamina TTS 版](projects/development-history-v3-tts/script.md)
+和 [TTS + suiV2 版](projects/development-history-v3-rvc/script.md)，新增了开场总览、
+录播姬/Webhook 输入、Whisper → FunASR、四类输出和逐句字幕。
+
+## 已知缺陷
+
+这套工作流已经能稳定产出可审阅视频，但当前成片仍有两个明确短板：
+
+- **视频节奏仍然需要提升**：镜头、旁白和网页章节目前主要按音频时长顺序拼接，
+  还没有针对信息密度、停顿、镜头转场和重复视觉建立一套节奏评分与自动剪辑规则。
+- **网页 PPT 的动效还没有充分承担原理讲解**：已有弹幕、上下文、队列和时间线动画，
+  但部分章节仍接近“动态标题页”，还需要把输入、状态变化、中间结果和失败分支做成
+  更连续的可视化过程。
+
 ## 安装
 
 需要 Python 3.11+、FFmpeg / FFprobe。当前已在 Windows 上验证；
