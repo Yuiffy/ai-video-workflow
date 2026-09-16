@@ -30,7 +30,7 @@ python -m src.cli record projects/development-history/project.json
 python -m src.cli render projects/development-history/project.json
 ```
 
-完整配置复制 `config.example.json` 为 `config.json`。所有路径和服务地址都支持环境变量覆盖：`RVC_BASE_URL`、`JIMENG_CLI`、`FFMPEG_BIN`、`VIDEO_WORKFLOW_ROOT`。
+完整配置复制 `config.example.json` 为 `config.json`。Windows 上可以把 `<RVC_ROOT>` 替换为本机 RVC 目录；`dreamina.exe` 需要在 PATH 中，或把 `jimeng.executable` 改成绝对路径。
 
 ## 目录
 
@@ -56,7 +56,9 @@ ai-video-workflow/
 
 ### RVC
 
-框架不绑定某个 WebUI。只要本地服务提供以下兼容接口即可：
+框架不绑定某个 WebUI。默认支持 HTTP 服务，也支持本机 RVC WebUI 的离线命令桥接。离线模式会先用 RVC 运行时自带的 `edge-tts` 生成语音，再调用 `tools/rvc_convert.py` 加载 `suiV2.pth` 和 index 转换声线；权重永远留在本机，不进入 Git。
+
+如果你自己运行 HTTP 服务，只要提供以下兼容接口即可：
 
 ```text
 POST /api/tts       JSON {text, speaker, speed} -> audio/wav 或 {audio_path}

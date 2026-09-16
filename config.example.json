@@ -6,14 +6,25 @@
     "tts_path": "/api/tts",
     "convert_path": "/api/convert",
     "speaker": "鹿饼",
-    "timeout_seconds": 180
+    "timeout_seconds": 180,
+    "mode": "command",
+    "runtime_python": "<RVC_ROOT>/runtime/python.exe",
+    "rvc_root": "<RVC_ROOT>",
+    "model": "suiV2.pth",
+    "index": "D:/workspace/fun/RVC/RVC20240604Nvidia50x0/logs/added_IVF256_Flat_nprobe_1_suiV2_v2.index",
+    "pitch": 10,
+    "tts_command": ["{runtime_python}", "{sapi_tts}", "--voice", "Microsoft Huihui", "--text", "{text}", "--output", "{output}"],
+    "convert_command": ["{runtime_python}", "{rvc_bridge}", "--rvc-root", "{rvc_root}", "--input", "{input}", "--output", "{output}", "--model", "{model}", "--index", "{index}", "--pitch", "{pitch}"]
   },
   "jimeng": {
-    "command": ["jimeng", "generate", "--model", "{model}", "--prompt", "{prompt}", "--ratio", "{ratio}", "--duration", "{duration}"],
+    "executable": "dreamina",
+    "command": ["multimodal2video", "{images}", "--model_version", "{model}", "--prompt", "{prompt}", "--ratio", "{ratio}", "--duration", "{duration}", "--video_resolution", "{video_resolution}", "--poll", "60"],
     "model": "seedance2.0fast_vip",
     "ratio": "16:9",
-    "duration": 8,
-    "references": []
+    "duration": 10,
+    "video_resolution": "720p",
+    "poll": 60,
+    "images": []
   },
   "recording": {
     "viewport": {"width": 1920, "height": 1080},

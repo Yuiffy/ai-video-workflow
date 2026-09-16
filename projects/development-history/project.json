@@ -1,56 +1,21 @@
 {
   "id": "luben-warm-reply-history-001",
   "title": "鹿饼暖心回复发展史",
-  "description": "从人工让 GPT 网页写一封暖心回复，到可审阅、可复用的直播 AI 视频工作流。",
+  "description": "从人工让 GPT 网页写回复，到会自己开工的 AI 内容流水线。",
   "script": "script.md",
   "ppt": "ppt/index.html",
   "storyboard": "storyboard.json",
   "output": "outputs",
   "scenes": [
-    {
-      "id": "opening",
-      "title": "一条回复的起点",
-      "narration": "最开始，我们只是人工打开 GPT 网页，把想说的话整理成提示词，再请它帮忙写一段暖心回复。那时每一条都很认真，但每一次也都要从头开始。",
-      "visual": "温暖的夜晚书桌，浏览器窗口里是一段正在生成的中文暖心文字，桌边有鹿形饼干和柔和台灯，电影感，16:9",
-      "image_prompt": "cinematic warm night desk, browser window with Chinese supportive message being drafted, deer shaped cookie, soft lamp, gentle documentary mood, no readable UI text, 16:9",
-      "duration": 10,
-      "ppt_slide": 1
-    },
-    {
-      "id": "manual-to-template",
-      "title": "从手工到模板",
-      "narration": "随着回复越来越多，我们把称呼、事实、语气和公开范围写成固定提示词。写作不再只靠临场发挥，而是有了可以复用、可以检查的边界。",
-      "visual": "纸张上的提示词逐渐变成结构化模板，章节线条从手写变成清晰的时间轴",
-      "image_prompt": "editorial animation of handwritten notes becoming a clean structured prompt template and timeline, warm cream paper, teal accent, documentary explainer, 16:9",
-      "duration": 10,
-      "ppt_slide": 2
-    },
-    {
-      "id": "summary-ts",
-      "title": "summary-ts 出现",
-      "narration": "后来，这些经验被放进 danmaku-to-summary-ts。系统开始接收录播完成事件，完成视频合并、语音识别、字幕整理、AI 总结，再把结果交给人检查。",
-      "visual": "直播录播文件进入流水线，经过 ASR、字幕、总结和审核节点，最终变成一张清晰的流程图",
-      "image_prompt": "clean cinematic data pipeline, livestream recording entering ASR subtitles summary and human review nodes, teal and coral accents, Chinese tech documentary, 16:9",
-      "duration": 12,
-      "ppt_slide": 3
-    },
-    {
-      "id": "media-workflow",
-      "title": "从文字走向视频",
-      "narration": "再往前一步，我们不只生成文字。剧本可以拆成分镜，知识点可以先做成网页 PPT，再录成讲解画面；旁白交给本地 RVC，画面交给即梦，最后由 FFmpeg 合成。",
-      "visual": "网页 PPT、声波、视频片段和渲染进度汇聚成一条视频生产线",
-      "image_prompt": "modern local AI video production line, web presentation slides, voice waveform, generated video shots and ffmpeg render timeline converging, premium explainer style, 16:9",
-      "duration": 12,
-      "ppt_slide": 4
-    },
-    {
-      "id": "closing",
-      "title": "鹿饼的下一条回复",
-      "narration": "所以，这段历史的重点不是某一个模型，而是把一次次真诚的人工尝试，变成能被复用、能被审阅、也能继续长大的工作流。下一条视频，就从这里开始。",
-      "visual": "鹿饼形象站在由代码、字幕和胶片组成的温暖舞台上，向观众挥手，留出片尾字幕空间",
-      "image_prompt": "warm hopeful closing shot, cute deer biscuit mascot on a stage made of code subtitles and film strips, waving to audience, clean negative space for end title, 16:9",
-      "duration": 10,
-      "ppt_slide": 5
-    }
+    {"id":"opening","title":"本来只想偷懒写一句晚安","narration":"这个项目最初没有宏大目标。我只是想给虚拟主播岁己回一条更像样的晚安，于是打开 GPT 网页，把想说的话交给它。","visual":"深夜房间，成熟精致的二次元岁己戴着科技感猫帽坐在全息桌前，晚安评论光标闪烁，温暖台灯与蓝紫数据流交织","image_prompt":"high quality mature anime girl Sui, cyber cat hat and small demon wings, seated at a holographic desk in a quiet night room, blinking blank goodnight comment cursor, warm lamp mixed with blue violet data streams, cinematic concept animation, clear hand movement, no readable text, 16:9","duration":9,"ppt_slide":1},
+    {"id":"the_real_need","title":"一条晚安，不只是晚安","narration":"但真正想写的不是一句模板化的晚安。我们想知道今天播了什么、发生了什么梗，也想让回复里有一点真的在场感，温柔但不油腻。","visual":"岁己在三块漂浮面板间穿行：直播内容、观众情绪、温柔语气，手指将它们汇成一颗月光色的信息球","image_prompt":"mature anime girl Sui gracefully moving between three holographic panels representing stream moments, audience emotion and a gentle message, she gathers them into a moonlit glowing sphere, elegant cyber stage, expressive hands, cinematic anime, no readable text, 16:9","duration":9,"ppt_slide":2},
+    {"id":"manual_chat","title":"AI 没看直播，它在考古弹幕","narration":"最早的办法很朴素：把弹幕聊天记录复制给 GPT。AI 没有听过主播原话，只能从观众的哈哈哈和问号里，努力考古今晚到底发生了什么。","visual":"岁己把一卷发光的弹幕数据拖进 AI 聊天窗口，信息碎片在她手边飞过","image_prompt":"high quality anime Sui dragging a long ribbon of glowing livestream chat fragments into a holographic AI chat window, fragments and bubbles orbit her hands, elegant cyber cat hat, clear dragging action, cinematic camera slide, no readable text, 16:9","duration":10,"ppt_slide":3},
+    {"id":"first_code","title":"先别急着问 AI，先帮它划重点","narration":"弹幕太多，AI 很容易被噪音淹没。于是我们第一次写代码：按时间分组，合并重复刷屏，压掉水弹幕，先把原始 XML 变成 AI 看得懂的重点。","visual":"岁己操控全息压缩台，左侧混乱弹幕洪流经过筛选、合并、压缩，右侧变成整齐的时间线卡片","image_prompt":"mature anime Sui at a large holographic compression console, chaotic livestream message streams pass through filters and merge into clean timeline cards, she taps and compresses data with both hands, cyber UI interacts with her gestures, cinematic anime concept film, no readable text, 16:9","duration":10,"ppt_slide":4},
+    {"id":"asr","title":"从看弹幕猜，升级到直接听直播","narration":"但弹幕始终是旁观者的反应。下一步，我们让电脑直接听直播：声音变成波形，波形再变成带时间轴的字幕，主播真正说过的话终于回来了。","visual":"岁己伸手引导直播声音波形穿过耳机与光环，另一侧连续浮出字幕条","image_prompt":"beautiful mature anime Sui guiding a flowing livestream audio waveform through a luminous headset and ring, waveform transforms into timed subtitle strips beside her, graceful hand gesture, futuristic studio, rich blue and magenta lighting, no readable text, 16:9","duration":10,"ppt_slide":5},
+    {"id":"highlight","title":"字幕给内容，弹幕给重点","narration":"有了字幕，我们知道主播说了什么；有了弹幕热度，我们知道观众在哪里沸腾。两条轨道叠在一起，就能从几个小时直播里圈出真正值得看的瞬间。","visual":"巨大的全息时间轴展开，字幕轨道和弹幕热力波峰叠合，岁己点亮高峰并抽出片段晶体","image_prompt":"high quality anime Sui standing before a huge holographic livestream timeline, subtitle track above and audience heat peaks below, she touches glowing peaks and extracts luminous clip crystals, elegant cyber concept animation, dynamic camera push in, no readable text, 16:9","duration":10,"ppt_slide":6},
+    {"id":"webhook","title":"录播结束后，软件会来敲门","narration":"再后来，录播软件学会了主动通知程序：文件好了，可以开工了。Webhook 像一封敲门的信，触发合并分段、提取音频、转字幕和后面的所有步骤。","visual":"岁己在未来工坊门口接住一枚发光通知信号，抬手启动整座流水线，门内机器逐个苏醒","image_prompt":"cinematic mature anime Sui at the entrance of a futuristic AI workshop, catching a glowing webhook notification signal like a letter, raising her hand to start conveyors and machines that light up one by one, strong opening motion, cyber cat hat, no readable text, 16:9","duration":9,"ppt_slide":7},
+    {"id":"full_pipeline","title":"它终于变成一条 AI 小工厂","narration":"到这里，流程已经串起来了：录播结束，自动字幕，弹幕找重点，AI 写晚安，AI 画漫画，再把结果送进 B 站评论。鹿饼的回复开始稳定地被送达。","visual":"岁己在核心工厂中引导数据从录播、字幕、AI、漫画一路流向 B 站评论终端，机械饼干岁作为小型辅助装置","image_prompt":"heroic mature anime Sui operating a luminous AI content factory, data flows from recording to subtitles to AI writing to illustration and finally a Bilibili comment terminal, small biscuit mascot assists without stealing focus, rich cyber anime production design, clear sequential motion, no readable text, 16:9","duration":11,"ppt_slide":8},
+    {"id":"clipping","title":"从晚安回复，继续长成自动切片","narration":"我们没有停在晚安。Whisper、FunASR、SenseVoice 让字幕更稳；高光召回、自动切片、烧录字幕和封面，让长直播也能变成短片。但最后一眼，仍然留给人工审核。","visual":"岁己在分支工作台上从长时间轴挑出多个高光片段，机械饼干岁在审核台盖下通过印章","image_prompt":"mature anime Sui in a branching cyber editing studio, selecting glowing highlights from a long timeline into several polished short clips with subtitle and cover layers, small biscuit mascot performs final human review stamp, elegant motion, cinematic anime, no readable text, 16:9","duration":11,"ppt_slide":9},
+    {"id":"lesson","title":"AI 不是魔法，真正厉害的是把工具接起来","narration":"回头看，改变我们的不是某一个模型，而是把录播姬、FFmpeg、ASR、AI API 和 B 站接口一件件接起来。AI 不是替代心意，而是帮我们把心意稳定送达。","visual":"岁己与饼干岁站在由代码、字幕、声波和胶片组成的环形舞台中央，所有模块点亮并汇聚成温暖的晚安光球","image_prompt":"beautiful mature anime Sui and a small biscuit mascot standing together in a circular stage made of code, subtitles, waveforms and film strips, connected modules illuminate and converge into a warm goodnight light sphere, hopeful cinematic closing shot, clear emotional expression, negative space for title, no readable text, 16:9","duration":11,"ppt_slide":10}
   ]
 }

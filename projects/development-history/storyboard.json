@@ -1,11 +1,18 @@
 {
   "project_id": "luben-warm-reply-history-001",
   "format": "16:9",
+  "style": "mature high-quality anime cyber concept film; Sui as the protagonist; biscuit mascot cameo",
+  "global_motion": "clear hand interaction with data, conveyors and holograms; camera push-in, lateral slide and orbit; avoid static posing and childish chibi infographic style",
   "chapters": [
-    {"scene_id": "opening", "kind": "web_ppt+generated_shot", "source": "人工让 GPT 网页写暖心回复", "transition": "fade"},
-    {"scene_id": "manual-to-template", "kind": "web_ppt+generated_shot", "source": "提示词模板和人工审核边界", "transition": "match-cut"},
-    {"scene_id": "summary-ts", "kind": "web_ppt+generated_shot", "source": "danmaku-to-summary-ts 录播后处理", "transition": "timeline-wipe"},
-    {"scene_id": "media-workflow", "kind": "web_ppt+generated_shot", "source": "RVC、即梦、FFmpeg 组成视频工作流", "transition": "audio-bridge"},
-    {"scene_id": "closing", "kind": "web_ppt+generated_shot", "source": "可复用、可审阅、可继续成长", "transition": "fade-out"}
+    {"scene_id":"opening","kind":"web_ppt+dreamina","transition":"fade"},
+    {"scene_id":"the_real_need","kind":"web_ppt+dreamina","transition":"match-cut"},
+    {"scene_id":"manual_chat","kind":"web_ppt+dreamina","transition":"data-flow"},
+    {"scene_id":"first_code","kind":"web_ppt+dreamina","transition":"compress"},
+    {"scene_id":"asr","kind":"web_ppt+dreamina","transition":"audio-bridge"},
+    {"scene_id":"highlight","kind":"web_ppt+dreamina","transition":"timeline-wipe"},
+    {"scene_id":"webhook","kind":"web_ppt+dreamina","transition":"door-open"},
+    {"scene_id":"full_pipeline","kind":"web_ppt+dreamina","transition":"conveyor"},
+    {"scene_id":"clipping","kind":"web_ppt+dreamina","transition":"branch"},
+    {"scene_id":"lesson","kind":"web_ppt+dreamina","transition":"fade-out"}
   ]
 }

@@ -1,41 +1,20 @@
 <!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>鹿饼暖心回复发展史</title>
-  <style>
-    :root { --ink:#102329; --muted:#52676c; --cream:#f7f1e8; --teal:#0e6970; --coral:#e36f52; --gold:#d6a85d; }
-    * { box-sizing:border-box } body { margin:0; overflow:hidden; background:var(--cream); color:var(--ink); font-family: Georgia, "Noto Serif SC", serif; }
-    main { width:100vw; height:100vh; position:relative; }
-    .slide { position:absolute; inset:0; padding:7vh 9vw; display:grid; grid-template-columns:1fr 1fr; align-items:center; opacity:0; transform:translateY(18px) scale(.99); transition:opacity .7s ease, transform .7s ease; }
-    .slide.active { opacity:1; transform:none; }
-    .copy { max-width:620px; } .kicker { color:var(--coral); letter-spacing:.18em; font:600 14px/1.4 ui-sans-serif,system-ui; text-transform:uppercase; }
-    h1 { font-size:clamp(48px,6vw,98px); line-height:.98; letter-spacing:-.05em; margin:18px 0 24px; } h2 { font-size:clamp(38px,4vw,70px); line-height:1.05; margin:16px 0; }
-    p { max-width:560px; color:var(--muted); font:400 clamp(18px,1.45vw,27px)/1.7 ui-sans-serif,system-ui; }
-    .art { height:66vh; position:relative; display:grid; place-items:center; } .orb { width:min(32vw,470px); aspect-ratio:1; border-radius:50%; background:radial-gradient(circle at 34% 28%,#fff8df 0 8%,#f5cf85 9% 30%,#d9895f 31% 53%,#0e6970 54% 100%); box-shadow:24px 32px 0 #10232918; animation:float 5s ease-in-out infinite; }
-    .orb::after { content:"鹿饼"; position:absolute; color:#fff8df; font-size:clamp(42px,5vw,78px); transform:rotate(-12deg); letter-spacing:.12em; }
-    .line { position:absolute; width:78%; height:1px; background:var(--gold); transform:rotate(-24deg); } .line.two { transform:rotate(24deg); width:52%; background:var(--coral); }
-    .timeline { position:absolute; left:9vw; right:9vw; bottom:6vh; display:flex; gap:10px; } .dot { height:5px; flex:1; background:#c5d1cf; } .dot.active { background:var(--coral); }
-    .stamp { position:absolute; right:5vw; top:5vh; writing-mode:vertical-rl; color:#7d9390; letter-spacing:.2em; font:12px ui-sans-serif,system-ui; }
-    @keyframes float { 0%,100% { transform:translateY(0) rotate(-4deg) } 50% { transform:translateY(-13px) rotate(4deg) } }
-    @media (max-width:800px) { .slide { grid-template-columns:1fr; padding:8vh 8vw; } .art { height:28vh; } .orb { width:42vw; } h1 { font-size:17vw; } p { font-size:16px; } }
-  </style>
-</head>
-<body>
-<main id="deck">
-  <section class="slide active" data-slide="1"><div class="copy"><div class="kicker">01 / 起点</div><h1>一条回复的起点</h1><p>最开始，我们只是人工打开 GPT 网页，把想说的话整理成提示词，再请它帮忙写一段暖心回复。</p></div><div class="art"><i class="line"></i><i class="line two"></i><div class="orb"></div></div></section>
-  <section class="slide" data-slide="2"><div class="copy"><div class="kicker">02 / 方法</div><h2>从手工到模板</h2><p>称呼、事实、语气和公开范围被写成固定提示词，让每一次真诚都有可以复用、可以检查的边界。</p></div><div class="art"><i class="line"></i><i class="line two"></i><div class="orb"></div></div></section>
-  <section class="slide" data-slide="3"><div class="copy"><div class="kicker">03 / 系统</div><h2>summary-ts 出现</h2><p>录播完成事件、语音识别、字幕整理、AI 总结，再把结果交给人检查，一条生产线开始成形。</p></div><div class="art"><i class="line"></i><i class="line two"></i><div class="orb"></div></div></section>
-  <section class="slide" data-slide="4"><div class="copy"><div class="kicker">04 / 视频</div><h2>从文字走向视频</h2><p>网页 PPT 负责知识结构，本地 RVC 负责旁白，即梦负责画面，FFmpeg 把它们合成一条可发布的视频。</p></div><div class="art"><i class="line"></i><i class="line two"></i><div class="orb"></div></div></section>
-  <section class="slide" data-slide="5"><div class="copy"><div class="kicker">05 / 下一步</div><h2>鹿饼的下一条回复</h2><p>把一次次真诚的人工尝试，变成能被复用、能被审阅、也能继续长大的工作流。</p></div><div class="art"><i class="line"></i><i class="line two"></i><div class="orb"></div></div></section>
-  <div class="stamp">AI VIDEO WORKFLOW · 2026</div><nav class="timeline" aria-label="slides"><i class="dot active"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i></nav>
-</main>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>鹿饼暖心回复发展史</title>
+<style>
+:root{--ink:#e8f1ef;--muted:#aec2c0;--deep:#071a25;--teal:#0c6670;--coral:#ef8065;--gold:#e6bd72}*{box-sizing:border-box}body{margin:0;overflow:hidden;background:var(--deep);color:var(--ink);font-family:Georgia,"Noto Serif SC",serif}main{width:100vw;height:100vh;position:relative;background:radial-gradient(circle at 76% 48%,#14515c 0,#0d2935 38%,#071a25 78%)}.slide{position:absolute;inset:0;padding:8vh 9vw;display:grid;grid-template-columns:1.08fr .92fr;align-items:center;opacity:0;transform:translateY(24px) scale(.985);transition:opacity .7s ease,transform .7s ease}.slide.active{opacity:1;transform:none}.copy{max-width:720px}.kicker{color:var(--coral);letter-spacing:.16em;font:600 14px/1.4 ui-sans-serif,system-ui}.count{color:#7d9b9a;font:13px ui-sans-serif,system-ui;margin-bottom:16px}h1,h2{font-size:clamp(44px,5.3vw,88px);line-height:1.02;letter-spacing:-.055em;margin:12px 0 22px}p{max-width:630px;color:var(--muted);font:400 clamp(18px,1.48vw,28px)/1.72 ui-sans-serif,system-ui}.art{height:68vh;position:relative;display:grid;place-items:center}.halo{width:min(34vw,520px);aspect-ratio:1;border:1px solid #6ed3d055;border-radius:50%;box-shadow:0 0 0 34px #6ed3d00b,0 0 100px #6ed3d033;animation:spin 24s linear infinite}.halo:before,.halo:after{content:"";position:absolute;left:50%;top:50%;width:58%;height:1px;background:var(--gold);transform:translate(-50%,-50%) rotate(27deg)}.halo:after{background:var(--coral);transform:translate(-50%,-50%) rotate(-27deg);width:82%}.sigil{position:absolute;width:116px;height:116px;border-radius:30% 70% 55% 45%;background:linear-gradient(145deg,#f5d48e,#d97058 58%,#0d6670);transform:rotate(-14deg);box-shadow:20px 22px 0 #0004;animation:float 5s ease-in-out infinite}.sigil:after{content:"岁己";position:absolute;inset:0;display:grid;place-items:center;color:#fff4d8;font-size:30px;transform:rotate(14deg)}.node{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--coral);box-shadow:0 0 25px var(--coral);animation:pulse 2.2s ease-in-out infinite}.n1{left:21%;top:25%}.n2{right:20%;top:32%;background:var(--gold)}.n3{right:24%;bottom:22%;background:#75d1cb}.rail{position:absolute;left:9vw;right:9vw;bottom:5vh;display:flex;gap:8px}.dot{height:4px;flex:1;background:#38535b}.dot.active{background:var(--coral)}.stamp{position:absolute;right:4vw;top:5vh;writing-mode:vertical-rl;color:#73918f;letter-spacing:.2em;font:12px ui-sans-serif,system-ui}@keyframes float{0%,100%{transform:rotate(-14deg) translateY(0)}50%{transform:rotate(-7deg) translateY(-16px)}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.5);opacity:1}}@media(max-width:800px){.slide{grid-template-columns:1fr;padding:8vh 8vw}.art{height:26vh}.halo{width:42vw}h1,h2{font-size:14vw}p{font-size:16px}}
+</style></head><body><main id="deck"><div class="stamp">DANMAKU → ASR → AI → VIDEO</div></main>
 <script>
-  const slides=[...document.querySelectorAll('[data-slide]')], dots=[...document.querySelectorAll('.dot')]; let current=0;
-  function show(n){ current=(n+slides.length)%slides.length; slides.forEach((s,i)=>s.classList.toggle('active',i===current)); dots.forEach((d,i)=>d.classList.toggle('active',i===current)); }
-  window.startRecording=()=>{ let i=0; setInterval(()=>show(++i),7000); };
-  window.addEventListener('keydown',e=>{ if(e.key==='ArrowRight'||e.key===' ')show(current+1); if(e.key==='ArrowLeft')show(current-1); });
-</script>
-</body>
-</html>
+const data=[
+['01 · 起点','本来只想偷懒写一句晚安','这个项目最初没有宏大目标。我只是想给虚拟主播岁己回一条更像样的晚安，于是打开 GPT 网页，把想说的话交给它。'],
+['02 · 真正的需求','一条晚安，不只是晚安','我们想知道今天播了什么、发生了什么梗，也想让回复里有一点真的在场感，温柔但不油腻。'],
+['03 · 手工阶段','AI 没看直播，它在考古弹幕','把弹幕聊天记录复制给 GPT。AI 没有听过主播原话，只能从观众的哈哈哈和问号里，努力考古今晚到底发生了什么。'],
+['04 · 第一次写代码','先别急着问 AI，先帮它划重点','按时间分组，合并重复刷屏，压掉水弹幕，先把原始 XML 变成 AI 看得懂的重点。'],
+['05 · ASR','从看弹幕猜，升级到直接听直播','声音变成波形，波形再变成带时间轴的字幕，主播真正说过的话终于回来了。'],
+['06 · 高光提取','字幕给内容，弹幕给重点','字幕告诉我们主播说了什么，弹幕热度告诉我们观众在哪里沸腾，两条轨道圈出真正值得看的瞬间。'],
+['07 · 自动化','录播结束后，软件会来敲门','Webhook 像一封敲门的信：文件好了，可以开工了。它触发合并分段、提取音频、转字幕和后面的所有步骤。'],
+['08 · 小工厂','它终于变成一条 AI 小工厂','录播结束，自动字幕，弹幕找重点，AI 写晚安，AI 画漫画，再把结果送进 B 站评论。'],
+['09 · 继续长大','从晚安回复，继续长成自动切片','ASR 让字幕更稳；高光召回、自动切片、烧录字幕和封面，让长直播也能变成短片，但最后一眼仍留给人工审核。'],
+['10 · 结论','AI 不是魔法，真正厉害的是把工具接起来','把录播姬、FFmpeg、ASR、AI API 和 B 站接口一件件接起来，帮我们把心意稳定送达。']
+];
+const deck=document.querySelector('#deck');let current=0;data.forEach((s,i)=>{const el=document.createElement('section');el.className='slide'+(i===0?' active':'');el.dataset.slide=i+1;el.innerHTML=`<div class="copy"><div class="kicker">${s[0]}</div><div class="count">鹿饼暖心回复发展史 / ${String(i+1).padStart(2,'0')} / 10</div><h1>${s[1]}</h1><p>${s[2]}</p></div><div class="art"><i class="halo"></i><i class="sigil"></i><i class="node n1"></i><i class="node n2"></i><i class="node n3"></i></div>`;deck.appendChild(el)});const rail=document.createElement('nav');rail.className='rail';rail.innerHTML=data.map((_,i)=>`<i class="dot${i===0?' active':''}"></i>`).join('');deck.appendChild(rail);const slides=[...document.querySelectorAll('.slide')],dots=[...document.querySelectorAll('.dot')];function show(n){current=(n+slides.length)%slides.length;slides.forEach((s,i)=>s.classList.toggle('active',i===current));dots.forEach((d,i)=>d.classList.toggle('active',i===current))}window.startRecording=()=>setInterval(()=>show(current+1),7000);window.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')show(current+1);if(e.key==='ArrowLeft')show(current-1)});
+</script></body></html>
