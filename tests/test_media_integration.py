@@ -57,6 +57,9 @@ class MediaIntegrationTests(unittest.TestCase):
         self.assertTrue({"audio", "video"} <= {s["codec_type"] for s in info["streams"]})
         self.assertAlmostEqual(duration(output), 1.25, delta=.08)
         self.assertIn("hello", (pipeline.out/"test.srt").read_text())
+        states = {stage.stage: stage.status for stage in pipeline.manifest.stages}
+        self.assertEqual(states["ppt"], "done")
+        self.assertEqual(states["render"], "done")
 
 
 if __name__ == "__main__":

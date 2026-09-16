@@ -122,5 +122,7 @@ def render_project(pipeline, html_only=False) -> Path:
     partial.replace(final)
     (out / f"{project.id}.srt").write_text((root/"captions.srt").read_text(encoding="utf-8"), encoding="utf-8")
     write_json(root / "timeline.json", {"duration": position, "scenes": timeline, "probe": info})
+    pipeline.stage("ppt", "done", segments=[str(root/s.id/"html.mp4") for s in project.scenes],
+                   frame_rate=fps)
     pipeline.stage("render", "done", output=str(final), duration=position, timeline=str(root/"timeline.json"))
     return final
