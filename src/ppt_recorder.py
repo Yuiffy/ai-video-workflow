@@ -1,30 +1,47 @@
+"""Render local HTML on an explicit frame clock for repeatable narration timing."""
 from __future__ import annotations
 
-import asyncio
+import math
+import subprocess
 from pathlib import Path
 
 
-async def record_ppt(html: Path, output: Path, seconds_per_slide: int = 7, viewport: tuple[int, int] = (1920, 1080), fps: int = 30) -> Path:
-    from playwright.async_api import async_playwright
+def record_scene(page, slide: int, seconds: float, output: Path, config: dict) -> Path:
+    fps = int(config.get("recording", {}).get("fps", 24))
+    size = config.get("recording", {}).get("viewport", {"width": 1920, "height": 1080})
+    frames = math.ceil(seconds * fps)
+    if frames <= 0:
+        raise ValueError("HTML segment must contain at least one frame")
     output.parent.mkdir(parents=True, exist_ok=True)
-    async with async_playwright() as p:
-        browser = await p.chromium.launch()
-        context = await browser.new_context(viewport={"width": viewport[0], "height": viewport[1]}, device_scale_factor=1, record_video_dir=str(output.parent / "recordings"), record_video_size={"width": viewport[0], "height": viewport[1]})
-        page = await context.new_page()
-        await page.goto(html.resolve().as_uri(), wait_until="networkidle")
-        await page.evaluate("window.startRecording && window.startRecording()")
-        slides = await page.locator("[data-slide]").count()
-        await page.wait_for_timeout(max(1, slides) * seconds_per_slide * 1000)
-        video = page.video
-        await context.close()
-        await browser.close()
-        if video is None:
-            raise RuntimeError("Playwright 没有产生录制文件")
-        recorded = Path(await video.path())
-        output = output.with_suffix(".webm")
-        recorded.replace(output)
+    partial = output.with_name(output.stem + ".partial.mp4")
+    args = [config.get("ffmpeg_bin", "ffmpeg"), "-y", "-v", "error", "-f", "image2pipe",
+            "-vcodec", "mjpeg", "-framerate", str(fps), "-i", "-", "-an", "-c:v", "libx264",
+            "-preset", config.get("render", {}).get("preset", "fast"), "-crf", "19",
+            "-pix_fmt", "yuv420p", "-r", str(fps), "-s", f"{size['width']}x{size['height']}",
+            "-movflags", "+faststart", str(partial)]
+    with output.with_suffix(".ffmpeg.log").open("wb") as log:
+        encoder = subprocess.Popen(args, stdin=subprocess.PIPE, stderr=log, stdout=subprocess.DEVNULL)
+        try:
+            for frame in range(frames):
+                page.evaluate("value => window.renderAt(value)",
+                              {"slide": slide, "time": frame / fps, "duration": seconds})
+                encoder.stdin.write(page.screenshot(type="jpeg", quality=92))
+            encoder.stdin.close()
+            if encoder.wait(timeout=120):
+                raise RuntimeError(f"HTML encoder failed; inspect {output.with_suffix('.ffmpeg.log')}")
+        except BaseException:
+            encoder.kill()
+            encoder.wait()
+            raise
+    partial.replace(output)
     return output
 
 
-def record_ppt_sync(*args, **kwargs) -> Path:
-    return asyncio.run(record_ppt(*args, **kwargs))
+def open_deck(browser, html: Path, config: dict):
+    size = config.get("recording", {}).get("viewport", {"width": 1920, "height": 1080})
+    page = browser.new_page(viewport=size, device_scale_factor=1)
+    page.goto(html.resolve().as_uri(), wait_until="load")
+    page.evaluate("document.fonts.ready")
+    if not page.evaluate("typeof window.renderAt === 'function'"):
+        raise ValueError("Deck must implement window.renderAt({slide, time, duration})")
+    return page

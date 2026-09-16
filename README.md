@@ -1,83 +1,132 @@
 # AI Video Workflow
 
-一个可自托管、可替换供应商的 AI 视频制作工作流：剧本 → 网页 PPT → 本地 RVC 声音 → 即梦/Seedance 画面 → FFmpeg 合成。
+把 **Codex 剧本、HTML 技术图解、Dreamina / Seedance 镜头和本地 TTS → RVC 旁白**
+合成一条有声音、有字幕、有章节的视频。适合项目发展史、科普和需要准确图表的讲解视频。
 
-第一期示例是《鹿饼暖心回复发展史》，用来讲解 `danmaku-to-summary-ts` 从人工让 GPT 网页写回复，逐步发展到可复用的直播摘要、字幕、漫画和切片系统。
+第一期：[鹿饼暖心回复发展史](projects/development-history/script.md)。
+从人工让 GPT 网页写晚安，讲到弹幕整理、ASR、Webhook、漫画与自动切片。
+[史料与 Git 提交依据](projects/development-history/sources.md)随示例维护。
 
-## 设计目标
+## 安装
 
-- **供应商可替换**：即梦 CLI、RVC 服务、LLM 和 FFmpeg 都是适配器；没有服务时可以 `--dry-run` 生成确定性的执行计划。
-- **本地优先**：RVC 通过本地 HTTP 服务调用；旁白可以使用同一个服务的 TTS 接口；原片已有声线参考时可以跳过变声。
-- **网页即 PPT**：每个章节是一个普通 HTML 页面，可在浏览器里预览，也可用 Playwright + FFmpeg 录制成视频。
-- **人工可审阅**：每个阶段都写入 manifest，保留提示词、输入、输出和状态，不自动发布。
-
-## 快速开始
+需要 Python 3.11+、FFmpeg / FFprobe。当前已在 Windows 上验证；
+测试中的 HTML 与媒体渲染也在 Linux CI 运行。
 
 ```powershell
+git clone https://github.com/Yuiffy/ai-video-workflow.git
 cd ai-video-workflow
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-
-# 只生成计划、剧本旁白和即梦任务，不调用外部服务
-python -m src.cli plan projects/development-history/project.json --dry-run
-
-# 录制网页 PPT（需要安装 Playwright 浏览器）
 python -m playwright install chromium
-python -m src.cli record projects/development-history/project.json
+Copy-Item config.example.json config.json
+```
 
-# 合成已有素材
+编辑本地 `config.json`：
+
+- `jimeng.executable`：官方 `dreamina` CLI 的路径；登录交给 CLI 自己管理。
+- `jimeng.images`、`audio_references`：本地参考文件。无图片时使用文生视频；
+  有图片时使用全能参考。当前适配 `seedance2.0fast_vip` 和 `seedance2.0mini` 的 720p。
+- `rvc.runtime_python`、`rvc.rvc_root`、`model`、`index`：已有 RVC WebUI 安装和模型。
+  模型名相对于 RVC 的 `assets/weights/`，index 可为空。
+- 默认 TTS 命令使用 Windows SAPI 慧慧，再由 RVC 变声。SAPI 桥接需要该 Python
+  环境中的 `pywin32`。也可换成返回 WAV 的 TTS 命令或本地服务。
+
+**RVC 本身是语音转换模型，不是文字转语音模型。** 文生旁白要先有 TTS，
+再把合成声音交给 RVC。无需修改既有 RVC 安装或启动 WebUI。
+
+```powershell
+python -m src.cli doctor
+python -m src.cli plan projects/development-history/project.json --dry-run
+```
+
+模型、声线、参考图和生成的视频不包含在源码仓库中。
+`config.json`、`outputs/` 和 `temp/` 均被忽略。
+
+## 制作视频
+
+```powershell
+# 提交新镜头，或继续查询已有 ID。会产生生成费用。
+python -m src.cli jimeng projects/development-history/project.json
+
+# 刷新远端状态并下载结果；只查询，不新建任务。
+python -m src.cli poll projects/development-history/project.json
+
+# 生成逐句 TTS，转换声线，记录准确的句段时间。
+python -m src.cli voice projects/development-history/project.json
+
+# 合成：每章先播放即梦片段，再接 HTML 图解，完整保留旁白。
 python -m src.cli render projects/development-history/project.json
 ```
 
-完整配置复制 `config.example.json` 为 `config.json`。Windows 上可以把 `<RVC_ROOT>` 替换为本机 RVC 目录；`dreamina.exe` 需要在 PATH 中，或把 `jimeng.executable` 改成绝对路径。
+也可以使用 `run` 串联上述阶段。远端生成还在进行时退出码为 2，
+稍后重新执行相同命令即可继续；完成的语音和画面会复用。
+所有执行命令的 `--dry-run` 只写计划，不调用供应商。
+用 `--scene opening` 可限定语音或镜头阶段。
 
-## 目录
+每次付费提交前写入意图，得到提交 ID 后立即保存；CLI 超时不自动重提。
+如果程序在收到 ID 前中断，用 Dreamina 的任务列表找回 ID，然后：
 
-```text
-ai-video-workflow/
-├── src/
-│   ├── cli.py              # plan / voice / record / render / run
-│   ├── models.py           # 项目、分镜、素材合同
-│   ├── pipeline.py         # 阶段编排与 manifest
-│   ├── rvc_client.py       # 本地 RVC TTS/变声 HTTP 适配器
-│   ├── jimeng_cli.py       # 即梦 CLI 适配器
-│   ├── ppt_recorder.py     # Playwright 网页 PPT 录制
-│   └── media.py            # FFmpeg 检查和合成
-├── projects/development-history/
-│   ├── project.json        # 第一个视频的完整输入
-│   ├── script.md           # 可人工编辑的旁白稿
-│   ├── storyboard.json     # 即梦镜头提示词和网页章节
-│   └── ppt/index.html      # 可直接录制的科普网页 PPT
-└── .agents/skills/...      # Codex 操作本工作流的技能说明
+```powershell
+python -m src.cli adopt projects/development-history/project.json --scene opening --submit-id <ID>
 ```
 
-## 外部适配器
+修改提示词不会自动购买新版本。要新拍一个镜头，可新增 scene ID，或使用新项目输出目录。
+项目输出目录有进程锁，避免两个命令同时提交同一份工作。
 
-### RVC
+## 本地 RVC 服务
 
-框架不绑定某个 WebUI。默认支持 HTTP 服务，也支持本机 RVC WebUI 的离线命令桥接。离线模式会先用 RVC 运行时自带的 `edge-tts` 生成语音，再调用 `tools/rvc_convert.py` 加载 `suiV2.pth` 和 index 转换声线；权重永远留在本机，不进入 Git。
-
-如果你自己运行 HTTP 服务，只要提供以下兼容接口即可：
-
-```text
-POST /api/tts       JSON {text, speaker, speed} -> audio/wav 或 {audio_path}
-POST /api/convert   multipart audio + JSON {speaker, pitch} -> audio/wav 或 {audio_path}
-GET  /health
+```powershell
+python -m src.voice_service --config config.json --port 7898
 ```
 
-通过 `config.json` 的 `rvc.tts_path`、`rvc.convert_path` 调整路径。若输入音频已经带有目标声线参考，在 scene 中设置 `voice_reference: true`，流程会记录并跳过 convert。
+服务只监听 `127.0.0.1`。客户端将 `rvc.mode` 改成 `http`，
+`base_url` 改为 `http://127.0.0.1:7898`。服务内部仍调用配置中的本地命令。
 
-### 即梦 / Seedance
+| 接口 | 输入 | 输出 |
+| --- | --- | --- |
+| GET /health | 无 | 当前模型、忙闲状态 |
+| POST /api/tts | JSON：text、speed | WAV 字节 |
+| POST /api/convert | JSON：audio_base64、pitch | WAV 字节 |
 
-`jimeng.command` 是一个参数模板，例如：
+服务串行处理模型请求，每次转换结束释放子进程。若需要更高吞吐，
+可用常驻模型服务替代这个桥接器。
 
-```json
-"command": ["jimeng", "generate", "--model", "{model}", "--prompt", "{prompt}", "--ratio", "{ratio}", "--duration", "{duration}"]
+已有音频通过 scene 的 `voice.source_audio` 指定。
+如果要保留即梦生成的声音，设置 `voice.use_generated_audio: true`。
+确认音频已是目标声线时，再设置 `voice.already_target_voice: true` 跳过 RVC。
+`voice.reference_audio` 只作为 Dreamina 的音色参考；仅有参考文件不自动跳过旁白生成。
+
+## 网页作为 PPT
+
+示例是离线 HTML，方向键或空格翻页。每页展示一个技术概念。
+新网页只需提供 `[data-slide]` 元素和：
+
+```javascript
+window.renderAt = ({ slide, time, duration }) => {
+  // 显示从 0 开始的 slide，并把动画设置到 time 秒。
+};
 ```
 
-框架只负责生成任务清单和调用命令，不猜测具体 CLI 的登录、VIP 或上传行为。当前示例默认 `seedance2.0fast_vip`，可改成 `seedance2.0mini`。
+录制器用显式帧时钟渲染 HTML，再编码成视频，避免真实时间录屏的加载空白和计时漂移。
+`record` 命令只使用网页画面与旁白；`render` 混合即梦和网页。
+旁白长度决定每章时长，不会为了匹配 10 秒镜头截断声音。
+成片为 H.264/AAC MP4，并包含烧录字幕、SRT 文件、章节和编辑时间轴。
 
-## 许可
+Codex 工作流见 [.agents/skills/ai-video-workflow/SKILL.md](.agents/skills/ai-video-workflow/SKILL.md)。
+Codex 负责研究、写稿、分镜和网页设计；框架不额外绑定一个付费 LLM API。
 
-MIT。外部模型、图片、声音和平台服务遵循各自条款；发布前请确认素材授权和声音使用权。
+## 验证与边界
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+测试覆盖付费任务恢复、未知提交结果、重复请求锁、声线跳过、HTTP 音频传输，
+以及真正的浏览器 → FFmpeg 有声合成。单元测试不调用付费服务。
+独立搭建的原因和参考项目见 [设计说明](docs/design.md)。
+
+当前 TTS 默认是 Windows SAPI，语气比较平实；RVC 改变声线，不会自动提高口播表现。
+外部输入音频只有整段字幕时间，精细字幕需要额外对齐；TTS 输入有逐句计时。
+输出视频在本地供审核，不自动发布到 B 站。
+本项目源码为 MIT；外部模型、参考图、声音和生成媒体保留各自使用边界。

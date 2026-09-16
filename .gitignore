@@ -3,3 +3,6 @@ outputs/
 .venv/
 __pycache__/
 *.pyc
+temp/
+*.egg-info/
+.pytest_cache/

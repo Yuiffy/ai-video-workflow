@@ -1,20 +1,97 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>鹿饼暖心回复发展史</title>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>鹿饼暖心回复发展史 · 从一句晚安开始</title>
 <style>
-:root{--ink:#e8f1ef;--muted:#aec2c0;--deep:#071a25;--teal:#0c6670;--coral:#ef8065;--gold:#e6bd72}*{box-sizing:border-box}body{margin:0;overflow:hidden;background:var(--deep);color:var(--ink);font-family:Georgia,"Noto Serif SC",serif}main{width:100vw;height:100vh;position:relative;background:radial-gradient(circle at 76% 48%,#14515c 0,#0d2935 38%,#071a25 78%)}.slide{position:absolute;inset:0;padding:8vh 9vw;display:grid;grid-template-columns:1.08fr .92fr;align-items:center;opacity:0;transform:translateY(24px) scale(.985);transition:opacity .7s ease,transform .7s ease}.slide.active{opacity:1;transform:none}.copy{max-width:720px}.kicker{color:var(--coral);letter-spacing:.16em;font:600 14px/1.4 ui-sans-serif,system-ui}.count{color:#7d9b9a;font:13px ui-sans-serif,system-ui;margin-bottom:16px}h1,h2{font-size:clamp(44px,5.3vw,88px);line-height:1.02;letter-spacing:-.055em;margin:12px 0 22px}p{max-width:630px;color:var(--muted);font:400 clamp(18px,1.48vw,28px)/1.72 ui-sans-serif,system-ui}.art{height:68vh;position:relative;display:grid;place-items:center}.halo{width:min(34vw,520px);aspect-ratio:1;border:1px solid #6ed3d055;border-radius:50%;box-shadow:0 0 0 34px #6ed3d00b,0 0 100px #6ed3d033;animation:spin 24s linear infinite}.halo:before,.halo:after{content:"";position:absolute;left:50%;top:50%;width:58%;height:1px;background:var(--gold);transform:translate(-50%,-50%) rotate(27deg)}.halo:after{background:var(--coral);transform:translate(-50%,-50%) rotate(-27deg);width:82%}.sigil{position:absolute;width:116px;height:116px;border-radius:30% 70% 55% 45%;background:linear-gradient(145deg,#f5d48e,#d97058 58%,#0d6670);transform:rotate(-14deg);box-shadow:20px 22px 0 #0004;animation:float 5s ease-in-out infinite}.sigil:after{content:"岁己";position:absolute;inset:0;display:grid;place-items:center;color:#fff4d8;font-size:30px;transform:rotate(14deg)}.node{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--coral);box-shadow:0 0 25px var(--coral);animation:pulse 2.2s ease-in-out infinite}.n1{left:21%;top:25%}.n2{right:20%;top:32%;background:var(--gold)}.n3{right:24%;bottom:22%;background:#75d1cb}.rail{position:absolute;left:9vw;right:9vw;bottom:5vh;display:flex;gap:8px}.dot{height:4px;flex:1;background:#38535b}.dot.active{background:var(--coral)}.stamp{position:absolute;right:4vw;top:5vh;writing-mode:vertical-rl;color:#73918f;letter-spacing:.2em;font:12px ui-sans-serif,system-ui}@keyframes float{0%,100%{transform:rotate(-14deg) translateY(0)}50%{transform:rotate(-7deg) translateY(-16px)}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.5);opacity:1}}@media(max-width:800px){.slide{grid-template-columns:1fr;padding:8vh 8vw}.art{height:26vh}.halo{width:42vw}h1,h2{font-size:14vw}p{font-size:16px}}
-</style></head><body><main id="deck"><div class="stamp">DANMAKU → ASR → AI → VIDEO</div></main>
+:root{color-scheme:dark;--bg:#08151e;--fg:#e9f4f1;--soft:#a3bebf;--accent:#64e0ca;--gold:#f1bd78}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:"Microsoft YaHei","Noto Sans CJK SC",sans-serif;overflow:hidden}
+#canvas{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform:translate(-50%,-50%) scale(var(--scale,1));transform-origin:center;overflow:hidden;background:radial-gradient(ellipse at 78% 38%,#15424b55,transparent 52%),var(--bg)}
+header{position:absolute;left:92px;right:92px;top:58px;display:flex;justify-content:space-between;font-size:19px;letter-spacing:3px;color:var(--soft)}header b{color:var(--fg);font-weight:500}
+.slide{display:none;position:absolute;inset:0;padding:176px 92px 150px;grid-template-columns:760px 1fr;column-gap:64px;align-items:center}.slide.active{display:grid}
+.eyebrow{color:var(--accent);font-size:22px;margin-bottom:26px;letter-spacing:3px}
+h1{font-size:78px;line-height:1.23;font-weight:700;letter-spacing:-3px;margin:0 0 34px;max-width:760px}
+h1 em{font-style:normal;color:var(--accent)}.lede{font-size:29px;line-height:1.8;color:var(--soft);max-width:680px;margin:0}
+.source{font:18px/1.65 "Microsoft YaHei",sans-serif;color:#749599;margin-top:38px}.source b{color:var(--gold);font-weight:500}
+.visual{height:560px;position:relative;align-self:center;display:flex;align-items:center;justify-content:center}
+.browser{width:790px;border:1px solid #33575b;border-radius:22px;background:#10252e;overflow:hidden;box-shadow:0 36px 90px #0005}
+.browser-head{height:62px;border-bottom:1px solid #33575b;display:flex;align-items:center;padding:0 24px;gap:10px;font-size:18px;color:var(--soft)}
+.browser-head i{width:10px;height:10px;border-radius:50%;background:#668185}.browser-head span{margin-left:20px}
+.chat{padding:38px;font-size:28px;line-height:1.8}.chat small{display:block;font-size:18px;color:var(--soft);margin-bottom:12px}.request{margin-left:60px;background:#1c4249;padding:22px;border-radius:16px}.reply{padding:22px 0;color:var(--accent);max-width:620px}.cursor{display:inline-block;width:3px;height:29px;background:var(--accent);vertical-align:middle;animation:blink 1s infinite}
+.ring{width:480px;height:480px;border:1px solid #457c80;border-radius:50%;position:relative;display:grid;place-items:center;box-shadow:0 0 0 45px #64e0ca08}
+.ring strong{font-size:80px;color:var(--accent);font-weight:500;line-height:1.2;text-align:center}
+.satellite{position:absolute;background:var(--bg);padding:15px 24px;font-size:28px;border-left:3px solid var(--accent)}.satellite:nth-child(2){left:-140px;top:32px}.satellite:nth-child(3){right:-115px;top:216px}.satellite:nth-child(4){left:-95px;bottom:16px}
+.bubble{display:inline-block;border:1px solid #4d727b;color:#d4e2e3;border-radius:50px;padding:12px 24px;font-size:25px;margin:10px;animation:float 4s infinite ease-in-out}
+.cloud{position:absolute;top:10px;left:0;width:420px}.flow-arrow{color:var(--accent);font-size:72px}
+.ai-box{position:absolute;right:0;top:80px;width:295px;height:295px;border:1px solid var(--accent);border-radius:50%;display:grid;place-items:center;font-size:54px;color:var(--accent);box-shadow:0 0 80px #64e0ca13}.question{position:absolute;right:80px;bottom:20px;color:var(--gold);font-size:120px;font-weight:300}
+.conveyor{display:grid;grid-template-columns:240px 110px 1fr;gap:16px;width:100%;align-items:center}.raw{font:22px/2.4 Consolas,monospace;color:#94afb4}.machine{width:110px;height:300px;display:grid;place-items:center;border:1px solid var(--accent);color:var(--accent);writing-mode:vertical-rl;font-size:25px;letter-spacing:10px}.result{font-size:26px;line-height:2.9;padding-left:14px}.result b{color:var(--accent)}.result small{font-size:20px;color:var(--soft)}
+.audio-diagram{width:100%}.label{font-size:21px;letter-spacing:2px;color:var(--soft);margin-bottom:28px}.wave{height:128px;display:flex;align-items:center;gap:10px;margin:22px 0 44px}.wave i{width:12px;background:var(--accent);border-radius:6px;transform-origin:center;animation:wave 2s infinite alternate}
+.subline{margin-top:18px;background:#122e36;border-left:3px solid var(--accent);padding:19px 24px;font-size:28px;display:flex;gap:24px}.subline time{font:20px Consolas;color:var(--gold);padding-top:6px}
+svg{width:100%;height:auto;overflow:visible}.axis{stroke:#4e747d;stroke-width:1}.plot{stroke:var(--accent);stroke-width:3;fill:#64e0ca18}.peak{fill:var(--gold);animation:pulse 2s infinite}.svglabel{fill:var(--soft);font:24px "Microsoft YaHei"}.smalllabel{fill:#799da2;font:18px "Microsoft YaHei"}
+.event{width:100%;font-size:28px}.event .signal{font-size:90px;color:var(--accent);letter-spacing:-5px}.event .payload{margin:20px 0;border-top:1px solid #35545d;border-bottom:1px solid #35545d;padding:30px 0;color:var(--gold);font:26px/1.8 Consolas,"Microsoft YaHei"}.steps{display:flex;gap:22px;color:var(--soft);font-size:23px}.steps b{color:var(--accent)}
+.pipeline{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:0 40px;counter-reset:node}
+.step{padding:26px 0;border-bottom:1px solid #34555c;font-size:29px}.step::before{counter-increment:node;content:"0" counter(node);display:inline-block;width:50px;color:var(--accent);font:20px Consolas}.step:last-child{color:var(--gold)}
+.editing{width:100%}.track{height:90px;display:flex;gap:12px;border-bottom:2px solid #3c6470;padding-bottom:15px}.clip{background:#1d454d;border-top:3px solid var(--accent);flex:1;display:grid;place-items:center;font-size:24px}.clip:nth-child(2){flex:1.4;border-color:var(--gold)}.assembly{margin:40px 0;display:flex;gap:30px;font-size:28px;color:var(--soft)}.review{font-size:48px;color:var(--accent);padding:30px 0;border-top:1px solid #365a64}.review small{display:block;font-size:24px;color:var(--soft);margin-top:20px}
+.toolset{display:flex;flex-wrap:wrap;gap:22px 32px;justify-content:center;width:100%;font-size:30px;color:var(--soft)}.toolset b{color:var(--accent);font-weight:500}.closing{font-size:50px;line-height:1.5;text-align:center;margin-top:50px}.closing em{color:var(--gold);font-style:normal}
+footer{position:absolute;left:92px;right:92px;bottom:135px;display:flex;align-items:center;gap:24px;color:#72959c;font-size:18px}.rail{display:flex;gap:10px;flex:1}.rail i{height:3px;flex:1;background:#294952}.rail i.past{background:#397c7c}.rail i.on{background:var(--accent)}.page-number{color:var(--soft);font:20px Consolas}
+@keyframes blink{50%{opacity:0}}@keyframes float{50%{transform:translateY(-12px)}}@keyframes wave{to{transform:scaleY(.45);opacity:.6}}@keyframes pulse{50%{opacity:.45}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head><body><main id="canvas"><header><b>鹿饼暖心回复发展史</b><span>从一句晚安，到一条内容流水线</span></header>
+<section class="slide active" data-slide="1">
+ <div><div class="eyebrow">PROLOGUE / 人工阶段</div><h1>本来只想<br>写一句<em>晚安</em></h1><p class="lede">打开 GPT 网页，把直播见闻交给它。<br>生成之后，仍要自己修改、自己发送。</p><div class="source">起点来自开发者的回忆与原始介绍。</div></div>
+ <div class="visual"><div class="browser"><div class="browser-head"><i></i><i></i><i></i><span>手动整理 → 网页聊天</span></div><div class="chat"><div class="request"><small>把今天看直播的感受告诉 AI</small>“帮我写一条自然一点的晚安吧。”</div><div class="reply"><small>回复草稿 · 示意</small>今晚的小插曲还记在心里。<br>辛苦啦，明天见。<span class="cursor"></span></div></div></div></div>
+</section>
+<section class="slide" data-slide="2">
+ <div><div class="eyebrow">QUESTION / 真正想解决什么</div><h1>一条晚安，<br>需要一点<em>在场感</em></h1><p class="lede">不只复述直播内容。<br>还要记得某个瞬间，让语气像真的观众。</p><div class="source"><b>内容 + 感受 + 分寸</b><br>温柔但不油腻，具体但不过度推断。</div></div>
+ <div class="visual"><div class="ring"><strong>今晚<br>我在</strong><div class="satellite">今天发生了什么</div><div class="satellite">为什么会笑</div><div class="satellite">怎样自然地说晚安</div></div></div>
+</section>
+<section class="slide" data-slide="3">
+ <div><div class="eyebrow">STAGE 01 / 复制与粘贴</div><h1>AI 没看直播，<br>它在<em>考古弹幕</em></h1><p class="lede">弹幕里充满反应，却常常缺少起因。<br>只有“哈哈哈”，还不知道为什么好笑。</p><div class="source">输入：观众聊天记录<br>缺失：主播原话与完整上下文</div></div>
+ <div class="visual"><div class="cloud"><span class="bubble">哈哈哈哈</span><span class="bubble">？？？</span><span class="bubble">绷不住了</span><span class="bubble">小岁又来了</span><span class="bubble">晚安～</span></div><div class="ai-box">GPT</div><div class="question">?</div></div>
+</section>
+<section class="slide" data-slide="4">
+ <div><div class="eyebrow">STAGE 02 / 2024.10 起</div><h1>先整理弹幕，<br>再交给<em>AI</em></h1><p class="lede">按分钟分组、合并复读、筛选低信息内容。<br>先让有限的输入空间装下更多有用信息。</p><div class="source"><b>07e70a4 · 初始提交</b><br>2025 年继续调整目标行数与保留规则。<br>这是早期方案；后续也探索保留完整原文。</div></div>
+ <div class="visual"><div class="conveyor"><div class="raw">&lt;d&gt;哈哈哈&lt;/d&gt;<br>&lt;d&gt;哈哈哈&lt;/d&gt;<br>&lt;d&gt;？？？&lt;/d&gt;<br>&lt;d&gt;晚安&lt;/d&gt;</div><div class="machine">分组 · 合并 · 筛选</div><div class="result"><b>22:10</b> 哈哈哈 × 18<br><b>22:11</b> 一起刷问号<br><b>22:15</b> 下播晚安<br><small>压缩的是重复，不是心意。</small></div></div></div>
+</section>
+<section class="slide" data-slide="5">
+ <div><div class="eyebrow">STAGE 03 / 2025.11</div><h1>让电脑<br><em>直接听直播</em></h1><p class="lede">ASR = 自动语音识别。<br>把声音转成带时间的字幕，找回主播原话。</p><div class="source"><b>2f34562 · 引入 ASR 字幕处理</b><br>Whisper 曾是早期语音识别的重要组成。</div></div>
+ <div class="visual"><div class="audio-diagram"><div class="label">直播音频 → ASR → 时间轴字幕</div><div class="wave" id="wave"></div><div class="subline"><time>00:12</time><span>“我刚才不是那个意思！”</span></div><div class="subline"><time>00:18</time><span>“你们怎么都在笑啊？”</span></div><div class="source">字幕示意</div></div></div>
+</section>
+<section class="slide" data-slide="6">
+ <div><div class="eyebrow">STAGE 04 / 找到值得讲的瞬间</div><h1>字幕给内容，<br>弹幕给<em>线索</em></h1><p class="lede">把主播说的话和观众反应放在同一条时间轴。<br>热度用于提示候选，安静的重要内容也要保留。</p><div class="source">热度不是质量评分，也不能代替原文核对。<br>输出曾包括 _AI_HIGHLIGHT.txt。</div></div>
+ <div class="visual"><svg viewBox="0 0 800 540"><text x="0" y="40" class="svglabel">字幕内容</text><path class="axis" d="M0 110H800"/><g fill="#2c6069"><rect x="5" y="70" width="145" height="26"/><rect x="175" y="70" width="205" height="26"/><rect x="405" y="70" width="115" height="26"/><rect x="545" y="70" width="230" height="26"/></g><text x="0" y="195" class="svglabel">观众反应</text><path class="plot" d="M0 405L20 380 50 382 90 365 110 378 150 260 175 376 220 365 260 345 290 368 325 370 355 225 375 290 400 358 440 370 465 245 485 365 525 375 555 360 595 379 630 305 655 350 680 366 720 255 750 365 790 379 800 405Z"/><circle class="peak" cx="355" cy="225" r="10"/><circle class="peak" cx="720" cy="255" r="10"/><text x="293" y="163" class="svglabel">发生了什么？</text><text x="0" y="460" class="smalllabel">开播</text><text x="735" y="460" class="smalllabel">下播</text><text x="0" y="520" class="smalllabel">示意曲线 · 非真实直播热度数据</text></svg></div>
+</section>
+<section class="slide" data-slide="7">
+ <div><div class="eyebrow">STAGE 05 / 2026.01</div><h1>文件准备好，<br>软件就来<em>敲门</em></h1><p class="lede">Webhook 是录播软件主动发来的通知。<br>从此不用一直盯着文件夹，等录播结束。</p><div class="source"><b>28ba8e0 · 接收 Webhook</b><br>等待文件稳定、去重、处理重连，都是后来补上的细节。</div></div>
+ <div class="visual"><div class="event"><div class="signal">REC → POST → RUN</div><div class="payload">录播软件：文件好了，可以开工了。<br>程序：收到，进入处理队列。</div><div class="steps"><b>检查文件</b> → 合并分段 → 提取音频 → 字幕</div></div></div>
+</section>
+<section class="slide" data-slide="8">
+ <div><div class="eyebrow">STAGE 06 / 从工具到服务</div><h1>一条会开工的<br><em>晚安流水线</em></h1><p class="lede">文字、漫画、评论逐步接通。<br>重试、延迟发送和历史记录，让流程更可靠。</p><div class="source"><b>e093982 · 晚安回复与漫画生成</b><br>再接入 B 站评论接口和调度逻辑。</div></div>
+ <div class="visual"><div class="pipeline"><div class="step">接收录播</div><div class="step">ASR 字幕</div><div class="step">整理上下文</div><div class="step">AI 写晚安</div><div class="step">AI 画漫画</div><div class="step">B 站评论</div></div></div>
+</section>
+<section class="slide" data-slide="9">
+ <div><div class="eyebrow">STAGE 07 / 2026 · 继续生长</div><h1>长直播，<br>也能变成<em>短片</em></h1><p class="lede">更多 ASR 后端、说话人处理、候选复核。<br>从找片段，到字幕、封面、投稿队列。</p><div class="source">Whisper / Paraformer / SenseVoice / Fun-ASR-Nano<br>AI 提供候选，人工核对边界、错词和标题。</div></div>
+ <div class="visual"><div class="editing"><div class="label">完整直播时间轴</div><div class="track"><div class="clip">片段 A</div><div class="clip">片段 B</div><div class="clip">片段 C</div></div><div class="assembly">字幕 + 标题 + 封面 → 待审核</div><div class="review">✓ 最后一眼，留给人<small>候选不等于成片，生成不等于发布。</small></div></div></div>
+</section>
+<section class="slide" data-slide="10">
+ <div><div class="eyebrow">EPILOGUE / 同一个出发点</div><h1>把工具接起来，<br>让心意<em>稳定送达</em></h1><p class="lede">AI 帮忙处理繁琐步骤。<br>真正想说什么，始终来自看直播的人。</p><div class="source">github.com/Yuiffy/danmaku-to-summary-ts<br>github.com/Yuiffy/ai-video-workflow</div></div>
+ <div class="visual"><div><div class="toolset"><span>录播姬</span><b>→</b><span>FFmpeg</span><b>→</b><span>ASR</span><span>字幕 / 弹幕</span><b>→</b><span>AI API</span><b>→</b><span>B 站</span></div><div class="closing">从手动复制粘贴，<br>到<em>持续运转的工作流</em>。</div></div></div>
+</section>
+<footer><span>鹿饼 / ENGINEERING A GOODNIGHT</span><div class="rail" id="rail"></div><span class="page-number" id="pageNumber">01 / 10</span></footer>
+</main>
 <script>
-const data=[
-['01 · 起点','本来只想偷懒写一句晚安','这个项目最初没有宏大目标。我只是想给虚拟主播岁己回一条更像样的晚安，于是打开 GPT 网页，把想说的话交给它。'],
-['02 · 真正的需求','一条晚安，不只是晚安','我们想知道今天播了什么、发生了什么梗，也想让回复里有一点真的在场感，温柔但不油腻。'],
-['03 · 手工阶段','AI 没看直播，它在考古弹幕','把弹幕聊天记录复制给 GPT。AI 没有听过主播原话，只能从观众的哈哈哈和问号里，努力考古今晚到底发生了什么。'],
-['04 · 第一次写代码','先别急着问 AI，先帮它划重点','按时间分组，合并重复刷屏，压掉水弹幕，先把原始 XML 变成 AI 看得懂的重点。'],
-['05 · ASR','从看弹幕猜，升级到直接听直播','声音变成波形，波形再变成带时间轴的字幕，主播真正说过的话终于回来了。'],
-['06 · 高光提取','字幕给内容，弹幕给重点','字幕告诉我们主播说了什么，弹幕热度告诉我们观众在哪里沸腾，两条轨道圈出真正值得看的瞬间。'],
-['07 · 自动化','录播结束后，软件会来敲门','Webhook 像一封敲门的信：文件好了，可以开工了。它触发合并分段、提取音频、转字幕和后面的所有步骤。'],
-['08 · 小工厂','它终于变成一条 AI 小工厂','录播结束，自动字幕，弹幕找重点，AI 写晚安，AI 画漫画，再把结果送进 B 站评论。'],
-['09 · 继续长大','从晚安回复，继续长成自动切片','ASR 让字幕更稳；高光召回、自动切片、烧录字幕和封面，让长直播也能变成短片，但最后一眼仍留给人工审核。'],
-['10 · 结论','AI 不是魔法，真正厉害的是把工具接起来','把录播姬、FFmpeg、ASR、AI API 和 B 站接口一件件接起来，帮我们把心意稳定送达。']
-];
-const deck=document.querySelector('#deck');let current=0;data.forEach((s,i)=>{const el=document.createElement('section');el.className='slide'+(i===0?' active':'');el.dataset.slide=i+1;el.innerHTML=`<div class="copy"><div class="kicker">${s[0]}</div><div class="count">鹿饼暖心回复发展史 / ${String(i+1).padStart(2,'0')} / 10</div><h1>${s[1]}</h1><p>${s[2]}</p></div><div class="art"><i class="halo"></i><i class="sigil"></i><i class="node n1"></i><i class="node n2"></i><i class="node n3"></i></div>`;deck.appendChild(el)});const rail=document.createElement('nav');rail.className='rail';rail.innerHTML=data.map((_,i)=>`<i class="dot${i===0?' active':''}"></i>`).join('');deck.appendChild(rail);const slides=[...document.querySelectorAll('.slide')],dots=[...document.querySelectorAll('.dot')];function show(n){current=(n+slides.length)%slides.length;slides.forEach((s,i)=>s.classList.toggle('active',i===current));dots.forEach((d,i)=>d.classList.toggle('active',i===current))}window.startRecording=()=>setInterval(()=>show(current+1),7000);window.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')show(current+1);if(e.key==='ArrowLeft')show(current-1)});
-</script></body></html>
+const slides=Array.from(document.querySelectorAll('[data-slide]'));
+const rail=document.getElementById('rail');
+slides.forEach(()=>rail.appendChild(document.createElement('i')));
+const dots=Array.from(rail.children);let current=0;
+const wave=document.getElementById('wave');
+for(let i=0;i<32;i++){const b=document.createElement('i');b.style.height=(24+85*Math.abs(Math.sin(i*1.71)))+'px';b.style.animationDelay=(-i*.12)+'s';wave.appendChild(b)}
+function resize(){document.documentElement.style.setProperty('--scale',Math.min(innerWidth/1920,innerHeight/1080))}
+function select(index){current=Math.min(slides.length-1,Math.max(0,index));slides.forEach((s,i)=>s.classList.toggle('active',i===current));dots.forEach((d,i)=>{d.classList.toggle('on',i===current);d.classList.toggle('past',i<current)});document.getElementById('pageNumber').textContent=String(current+1).padStart(2,'0')+' / 10'}
+window.renderAt=function(frame){select(frame.slide);document.getAnimations().forEach(a=>{a.pause();a.currentTime=frame.time*1000})};
+addEventListener('resize',resize);addEventListener('keydown',e=>{if(['ArrowRight',' '].includes(e.key))select(current+1);if(e.key==='ArrowLeft')select(current-1)});
+resize();select(0);
+</script>
+</body></html>

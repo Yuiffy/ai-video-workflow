@@ -1,57 +1,107 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from .jimeng_cli import JimengCli
 from .models import Manifest, Project, StageRecord
-from .rvc_client import RvcClient
+from .storage import read_json, write_json
+from .voice import produce_voice
 
 
 class Pipeline:
     def __init__(self, project_file: Path, config: dict):
-        self.project_file = project_file
-        self.project = Project.from_file(project_file)
+        self.project_file = project_file.resolve()
+        self.project = Project.from_file(self.project_file)
         self.config = config
-        self.root = project_file.parent
+        self.root = self.project_file.parent
         self.out = (self.root / config.get("output_dir", self.project.output)).resolve()
-        self.manifest = Manifest(project_id=self.project.id, title=self.project.title)
-
-    def write_manifest(self) -> Path:
-        self.out.mkdir(parents=True, exist_ok=True)
         path = self.out / "manifest.json"
-        path.write_text(self.manifest.model_dump_json(indent=2), encoding="utf-8")
-        return path
+        self.manifest = Manifest.model_validate(read_json(path)) if path.exists() else Manifest(
+            project_id=self.project.id, title=self.project.title)
+        if self.manifest.project_id != self.project.id:
+            raise ValueError("Output directory belongs to another project")
 
-    def plan(self, dry_run: bool = True) -> Path:
-        jimeng_cfg = self.config["jimeng"]
-        jimeng = JimengCli(jimeng_cfg["command"], jimeng_cfg["model"], jimeng_cfg["ratio"], jimeng_cfg["duration"], jimeng_cfg.get("video_resolution", "720p"), jimeng_cfg.get("executable"), jimeng_cfg.get("images", []), int(jimeng_cfg.get("poll", 0)))
-        tasks = [jimeng.plan(scene.image_prompt or scene.visual, self.out / "jimeng" / scene.id, scene.id) for scene in self.project.scenes if scene.image_prompt or scene.visual]
-        plan = {"project": self.project.model_dump(mode="json"), "dry_run": dry_run, "jimeng_tasks": tasks}
-        (self.out / "plan.json").parent.mkdir(parents=True, exist_ok=True)
-        (self.out / "plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
-        self.manifest.stages.extend([StageRecord(stage="plan", status="done", detail={"task_count": len(tasks)}), StageRecord(stage="voice", status="planned"), StageRecord(stage="ppt", status="planned"), StageRecord(stage="jimeng", status="planned"), StageRecord(stage="render", status="planned")])
+    def stage(self, stage: str, status: str, **detail) -> Path:
+        self.manifest.stages = [item for item in self.manifest.stages if item.stage != stage]
+        self.manifest.stages.append(StageRecord(stage=stage, status=status, detail=detail))
         return self.write_manifest()
 
-    def generate_voice(self, dry_run: bool = False, scene_id: str | None = None) -> list[Path]:
-        cfg = self.config.get("rvc", {})
-        bridge = str((Path(__file__).parents[1] / "tools" / "rvc_convert.py").resolve())
-        values = {"runtime_python": cfg.get("runtime_python", "python"), "rvc_root": cfg.get("rvc_root", ""), "rvc_bridge": bridge, "sapi_tts": str((Path(__file__).parents[1] / "tools" / "sapi_tts.py").resolve()), "model": cfg.get("model", "suiV2.pth"), "index": cfg.get("index", ""), "pitch": str(cfg.get("pitch", 0))}
-        commands = {"tts": cfg.get("tts_command"), "convert": cfg.get("convert_command"), "values": values}
-        client = RvcClient(cfg.get("base_url", "http://127.0.0.1:7865"), cfg.get("tts_path", "/api/tts"), cfg.get("convert_path", "/api/convert"), float(cfg.get("timeout_seconds", 180)), cfg.get("mode", "http"), commands)
-        scenes = [s for s in self.project.scenes if scene_id is None or s.id == scene_id]
-        if scene_id and not scenes:
+    def write_manifest(self) -> Path:
+        path = self.out / "manifest.json"
+        write_json(path, self.manifest.model_dump(mode="json"))
+        return path
+
+    def scenes(self, scene_id: str | None = None):
+        result = [scene for scene in self.project.scenes if scene_id is None or scene.id == scene_id]
+        if not result:
             raise ValueError(f"未知 scene: {scene_id}")
-        results: list[Path] = []
-        for scene in scenes:
-            raw = self.out / "voice" / f"{scene.id}.mp3"
-            converted = self.out / "voice" / f"{scene.id}.wav"
-            if dry_run:
-                results.append(converted if not scene.voice.already_target_voice else raw)
+        return result
+
+    def plan(self, dry_run: bool = True) -> Path:
+        client = JimengCli(self.config["jimeng"])
+        tasks = [client.plan(s.image_prompt or s.visual, self.out / "jimeng" / s.id, s.id,
+                             s.duration, s.voice.reference_audio)
+                 for s in self.project.scenes if s.generate_video]
+        write_json(self.out / "plan.json", {"project": self.project.model_dump(mode="json"),
+                                          "dry_run": True, "jimeng_tasks": tasks})
+        return self.stage("plan", "done", task_count=len(tasks))
+
+    def video(self, scene_id: str) -> Path:
+        record = self.out / "jimeng" / scene_id / "job.json"
+        if not record.exists():
+            raise RuntimeError(f"No Dreamina job for {scene_id}")
+        data = read_json(record)
+        scene = self.scenes(scene_id)[0]
+        if data.get("prompt") is not None and data["prompt"] != (scene.image_prompt or scene.visual):
+            raise ValueError(f"Dreamina {scene_id} belongs to another prompt; review or adopt a matching job")
+        if data.get("gen_status") != "success":
+            raise RuntimeError(f"Dreamina {scene_id}: {data.get('gen_status')}; run poll")
+        paths = data.get("videos") or [v.get("path", "") for v in data.get("result_json", {}).get("videos", [])]
+        for value in paths:
+            path = Path(value)
+            if path.is_file() and path.stat().st_size:
+                return path.resolve()
+        raise RuntimeError(f"Dreamina {scene_id} has no downloaded file; run poll")
+
+    def generate_voice(self, dry_run: bool = False, scene_id: str | None = None) -> list[Path]:
+        results = []
+        for scene in self.scenes(scene_id):
+            path = self.out / "voice" / f"{scene.id}.wav"
+            if not dry_run:
+                generated = self.video(scene.id) if scene.voice.use_generated_audio else None
+                path = produce_voice(scene, self.out, self.config, generated)
+                self.stage("voice", "running", last_scene=scene.id)
+                print(f"voice ready: {scene.id}", flush=True)
+            results.append(path)
+        if not dry_run:
+            complete = all((self.out / "voice" / f"{s.id}.json").exists() for s in self.project.scenes)
+            self.stage("voice", "done" if complete else "running", files=[str(p) for p in results])
+        return results
+
+    def generate_jimeng(self, dry_run: bool = True, scene_id: str | None = None,
+                       poll_only: bool = False) -> list[dict]:
+        client = JimengCli(self.config["jimeng"])
+        results = []
+        for scene in self.scenes(scene_id):
+            if not scene.generate_video:
                 continue
-            client.tts(scene.narration, raw, scene.voice.speaker, scene.voice.speed)
-            if scene.voice.already_target_voice:
-                results.append(raw)
+            target = self.out / "jimeng" / scene.id
+            if dry_run:
+                task = client.plan(scene.image_prompt or scene.visual, target, scene.id,
+                                   scene.duration, scene.voice.reference_audio)
+            elif poll_only or (target / "job.json").exists():
+                # Existing paid work always resumes by ID, even if local text has changed.
+                # Rendering/QA checks the selected source; changing a prompt is not consent
+                # to buy another attempt.
+                task = client.query(target)
             else:
-                results.append(client.convert(raw, converted, scene.voice.speaker, scene.voice.pitch))
+                task = client.run(scene.image_prompt or scene.visual, target, scene.id,
+                                  scene.duration, scene.voice.reference_audio)
+            results.append(task)
+            print(f"Dreamina {scene.id}: {task.get('gen_status', 'planned')}", flush=True)
+        if not dry_run:
+            complete = all(r.get("downloaded") for r in results)
+            self.stage("jimeng", "done" if complete and scene_id is None else "running",
+                       tasks=[{"scene_id": t["scene_id"], "submit_id": t.get("submit_id"),
+                               "status": t.get("gen_status")} for t in results])
         return results

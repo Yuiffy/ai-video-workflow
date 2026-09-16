@@ -1,34 +1,64 @@
 {
   "output_dir": "outputs",
   "ffmpeg_bin": "ffmpeg",
+  "ffprobe_bin": "ffprobe",
   "rvc": {
-    "base_url": "http://127.0.0.1:7865",
-    "tts_path": "/api/tts",
-    "convert_path": "/api/convert",
-    "speaker": "鹿饼",
-    "timeout_seconds": 180,
     "mode": "command",
+    "base_url": "http://127.0.0.1:7898",
+    "timeout_seconds": 240,
     "runtime_python": "<RVC_ROOT>/runtime/python.exe",
     "rvc_root": "<RVC_ROOT>",
-    "model": "suiV2.pth",
-    "index": "D:/workspace/fun/RVC/RVC20240604Nvidia50x0/logs/added_IVF256_Flat_nprobe_1_suiV2_v2.index",
-    "pitch": 10,
-    "tts_command": ["{runtime_python}", "{sapi_tts}", "--voice", "Microsoft Huihui", "--text", "{text}", "--output", "{output}"],
-    "convert_command": ["{runtime_python}", "{rvc_bridge}", "--rvc-root", "{rvc_root}", "--input", "{input}", "--output", "{output}", "--model", "{model}", "--index", "{index}", "--pitch", "{pitch}"]
+    "model": "<MODEL>.pth",
+    "index": "",
+    "pitch": 0,
+    "tts_command": [
+      "{runtime_python}",
+      "{sapi_tts}",
+      "--voice",
+      "Microsoft Huihui",
+      "--text",
+      "{text}",
+      "--rate",
+      "{rate}",
+      "--output",
+      "{output}"
+    ],
+    "convert_command": [
+      "{runtime_python}",
+      "{rvc_bridge}",
+      "--rvc-root",
+      "{rvc_root}",
+      "--input",
+      "{input}",
+      "--output",
+      "{output}",
+      "--model",
+      "{model}",
+      "--index",
+      "{index}",
+      "--pitch",
+      "{pitch}"
+    ]
   },
   "jimeng": {
     "executable": "dreamina",
-    "command": ["multimodal2video", "{images}", "--model_version", "{model}", "--prompt", "{prompt}", "--ratio", "{ratio}", "--duration", "{duration}", "--video_resolution", "{video_resolution}", "--poll", "60"],
     "model": "seedance2.0fast_vip",
     "ratio": "16:9",
     "duration": 10,
     "video_resolution": "720p",
-    "poll": 60,
-    "images": []
+    "images": [],
+    "audio_references": []
   },
   "recording": {
-    "viewport": {"width": 1920, "height": 1080},
-    "fps": 30,
-    "seconds_per_slide": 7
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "fps": 24
+  },
+  "render": {
+    "shot_seconds": 6,
+    "crf": 19,
+    "preset": "fast"
   }
 }

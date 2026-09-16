@@ -15,9 +15,10 @@ def main() -> int:
     parser.add_argument("--rate", type=int, default=0)
     args = parser.parse_args()
     voice = win32com.client.Dispatch("SAPI.SpVoice")
-    matches = voice.GetVoices(f"Name={args.voice}")
-    if matches.Count:
-        voice.Voice = matches.Item(0)
+    matches = [token for token in voice.GetVoices() if args.voice in token.GetDescription()]
+    if not matches:
+        raise ValueError(f"SAPI voice is not installed: {args.voice}")
+    voice.Voice = matches[0]
     voice.Rate = args.rate
     stream = win32com.client.Dispatch("SAPI.SpFileStream")
     target = Path(args.output).resolve()

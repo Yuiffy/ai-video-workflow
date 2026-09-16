@@ -23,6 +23,12 @@ def main() -> int:
     parser.add_argument("--index-rate", type=float, default=0.75)
     parser.add_argument("--protect", type=float, default=0.33)
     args = parser.parse_args()
+    args.input = str(Path(args.input).resolve())
+    args.output = str(Path(args.output).resolve())
+    if args.index:
+        args.index = str(Path(args.index).resolve())
+        if not Path(args.index).is_file():
+            raise FileNotFoundError(args.index)
     root = Path(args.rvc_root).resolve()
     os.chdir(root)
     sys.path.insert(0, str(root))
@@ -34,6 +40,7 @@ def main() -> int:
     import torch
     from infer.lib.audio import load_audio
     from infer.lib.infer_pack.models import SynthesizerTrnMs256NSFsid, SynthesizerTrnMs768NSFsid
+    from infer.lib.infer_pack.models import SynthesizerTrnMs256NSFsid_nono, SynthesizerTrnMs768NSFsid_nono
     from infer.modules.vc.pipeline import Pipeline
     from infer.modules.vc.utils import load_hubert
 
@@ -48,13 +55,16 @@ def main() -> int:
     cpt["config"][-3] = cpt["weight"]["emb_g.weight"].shape[0]
     if_f0 = cpt.get("f0", 1)
     version = cpt.get("version", "v1")
-    cls = SynthesizerTrnMs768NSFsid if version == "v2" else SynthesizerTrnMs256NSFsid
-    net_g = cls(*cpt["config"], is_half=is_half)
+    cls = {("v1", 1): SynthesizerTrnMs256NSFsid, ("v2", 1): SynthesizerTrnMs768NSFsid,
+           ("v1", 0): SynthesizerTrnMs256NSFsid_nono, ("v2", 0): SynthesizerTrnMs768NSFsid_nono}[(version, if_f0)]
+    net_g = cls(*cpt["config"], is_half=is_half) if if_f0 else cls(*cpt["config"])
     del net_g.enc_q
     net_g.load_state_dict(cpt["weight"], strict=False)
     net_g.eval().to(device)
     if is_half:
         net_g = net_g.half()
+    else:
+        net_g = net_g.float()
 
     class Config:
         x_pad, x_query, x_center, x_max = 3, 10, 60, 180
