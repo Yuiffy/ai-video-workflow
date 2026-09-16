@@ -5,7 +5,7 @@ import textwrap
 from pathlib import Path
 
 from .media import concat_manifest, duration, probe, run
-from .ppt_recorder import open_deck, record_scene
+from .ppt_recorder import deck_digest, open_deck, record_scene
 from .storage import digest, file_digest, read_json, write_json
 
 
@@ -44,6 +44,7 @@ def render_project(pipeline, html_only=False) -> Path:
     root.mkdir(parents=True, exist_ok=True)
     scene_files, cues, timeline = [], [], []
     position = 0.0
+    deck_hash = deck_digest(Path(project.ppt))
     with sync_playwright() as p:
         browser = p.chromium.launch()
         try:
@@ -65,7 +66,7 @@ def render_project(pipeline, html_only=False) -> Path:
                 work.mkdir(parents=True, exist_ok=True)
                 target = work / "scene.mp4"
                 fingerprint = digest({"audio": file_digest(audio), "shot": file_digest(shot) if shot else None,
-                                      "deck": file_digest(Path(project.ppt)), "config": config.get("render"),
+                                      "deck": deck_hash, "config": config.get("render"),
                                       "recording": config.get("recording"), "slide": slide, "version": 1})
                 meta = work / "render.json"
                 cached = meta.exists() and target.exists() and read_json(meta).get("fingerprint") == fingerprint

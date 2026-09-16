@@ -7,6 +7,10 @@
 从人工让 GPT 网页写晚安，讲到弹幕整理、ASR、Webhook、漫画与自动切片。
 [史料与 Git 提交依据](projects/development-history/sources.md)随示例维护。
 
+[第二版](projects/development-history-v2/script.md)进一步解释上下文取舍、Prompt 演变、
+漫画参考、两种构图、多人配置和发送时机，配套可按时间播放的原理动画。
+[纯音频实验](docs/dreamina-audio.md)区分 Canvas TTS、suiV2 变声与 Seedance 音频参考。
+
 ## 安装
 
 需要 Python 3.11+、FFmpeg / FFprobe。当前已在 Windows 上验证；

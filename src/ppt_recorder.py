@@ -4,6 +4,14 @@ from __future__ import annotations
 import math
 import subprocess
 from pathlib import Path
+from .storage import digest, file_digest
+
+
+def deck_digest(html: Path) -> str:
+    """Invalidate cached recordings when a local script/style changes as well."""
+    assets = sorted(p for p in html.parent.rglob("*") if p.is_file() and
+                    p.suffix.lower() in {".html", ".js", ".css", ".svg", ".png", ".jpg", ".woff2"})
+    return digest([(str(p.relative_to(html.parent)), file_digest(p)) for p in assets])
 
 
 def record_scene(page, slide: int, seconds: float, output: Path, config: dict) -> Path:
