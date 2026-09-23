@@ -15,6 +15,15 @@ of truth; keep the readable script synchronized. Let each HTML scene explain one
 idea with a diagram or concrete example. Generated footage can illustrate that
 idea while the webpage owns precise text and relationships.
 
+For explainer decks, follow `docs/visual-explainer-workflow.md`. Lock the
+whole-film outline and factual source map first, then work on one slide at a
+time. For each slide, provide only its local brief, adjacent-slide transitions,
+style constraints and relevant source evidence to the AI; generate its motion,
+render representative frames, review factual/visual alignment, and revise that
+slide before proceeding. Do not ask one unconstrained prompt to write and animate
+the entire deck. Integrate slides through shared design tokens and one coherent
+narration timeline, then review pacing and continuity across the whole film.
+
 ## Produce and review
 
 - Run `python -m src.cli doctor`, then `plan <project.json> --dry-run`.

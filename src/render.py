@@ -18,11 +18,11 @@ def stamp(seconds: float, ass=False) -> str:
     return f"{hour}:{minute:02}:{second:02}.{fraction:02}" if ass else f"{hour:02}:{minute:02}:{second:02},{fraction:03}"
 
 
-def subtitles(cues: list[dict], directory: Path, width: int, height: int):
+def subtitles(cues: list[dict], directory: Path, width: int, height: int, margin_ratio: float = .055):
     srt = []
     ass = [f"[Script Info]\nScriptType: v4.00+\nPlayResX: {width}\nPlayResY: {height}\nWrapStyle: 0",
            "[V4+ Styles]\nFormat: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
-           f"Style: Default,Microsoft YaHei,{round(height*.038)},&H00FFFFFF,&H00FFFFFF,&H00101822,&H80101822,0,0,0,0,100,100,0,0,1,2,1,2,90,90,{round(height*.055)},1",
+           f"Style: Default,Microsoft YaHei,{round(height*.038)},&H00FFFFFF,&H00FFFFFF,&H00101822,&H80101822,0,0,0,0,100,100,0,0,1,2,1,2,90,90,{round(height*margin_ratio)},1",
            "[Events]\nFormat: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"]
     for i, cue in enumerate(cues, 1):
         text = "\n".join(textwrap.wrap(cue["text"], 30, break_long_words=True, break_on_hyphens=False))
@@ -101,7 +101,7 @@ def render_project(pipeline, html_only=False) -> Path:
                 position += scene_seconds
         finally:
             browser.close()
-    subtitles(cues, root, width, height)
+    subtitles(cues, root, width, height, config.get("render", {}).get("subtitle_margin_ratio", .055))
     concat_manifest(scene_files, root / "scenes.txt")
     chapters = [";FFMETADATA1", "title=" + project.title]
     for scene, section in zip(project.scenes, timeline):

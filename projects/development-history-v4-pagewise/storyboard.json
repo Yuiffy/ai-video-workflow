@@ -1,0 +1,78 @@
+{
+  "project_id": "luben-warm-reply-history-v4-pagewise",
+  "format": "16:9",
+  "chapters": [
+    {
+      "id": "intro",
+      "title": "一条晚安，背后要确认多少事？"
+    },
+    {
+      "id": "overview",
+      "title": "从录播到晚安，先看整条流程"
+    },
+    {
+      "id": "origin",
+      "title": "录播和弹幕，怎么变成可靠输入？"
+    },
+    {
+      "id": "context_limit",
+      "title": "先让电脑听懂：Whisper 到 FunASR"
+    },
+    {
+      "id": "short_context",
+      "title": "说话人区分，目前能帮到哪一步？"
+    },
+    {
+      "id": "full_context",
+      "title": "一场直播，分成四种结果"
+    },
+    {
+      "id": "warm_prompt",
+      "title": "上下文装不下时，先做取舍"
+    },
+    {
+      "id": "prompt_boundaries",
+      "title": "模型变强后，试着放回整场记录"
+    },
+    {
+      "id": "comic_script",
+      "title": "晚安 Prompt，怎样写得像今晚？"
+    },
+    {
+      "id": "references",
+      "title": "漫画输入：先写脚本，再选参考"
+    },
+    {
+      "id": "wrong_game",
+      "title": "小弥为什么总在图里启动原神？"
+    },
+    {
+      "id": "image_models",
+      "title": "生图模型进步后，中文可以怎么写？"
+    },
+    {
+      "id": "composition",
+      "title": "四格和沉浸式，怎么选？"
+    },
+    {
+      "id": "multi_people",
+      "title": "从岁己单人，扩到多个主播"
+    },
+    {
+      "id": "false_guests",
+      "title": "名字听错了，会怎样？"
+    },
+    {
+      "id": "timing",
+      "title": "晚安什么时候发？"
+    },
+    {
+      "id": "reliability",
+      "title": "半夜的任务怎样不丢、不重复？"
+    },
+    {
+      "id": "ending",
+      "title": "一条晚安，经过了哪些人和工具？"
+    }
+  ]
+}
