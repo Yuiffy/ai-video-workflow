@@ -1,5 +1,7 @@
 # AI Video Workflow
 
+新增：[本地配音工作台](docs/voice-studio.md)，默认使用 CosyVoice 3 日常聊天参考直接克隆旁白，可选 Fish Speech S2 Pro、IndexTTS 2.5 和 MiniMax 国内 API。使用 `tools/start_voice_studio.ps1` 启动配置与试听页面。
+
 把 **Codex 剧本、HTML 技术图解、Dreamina / Seedance 镜头和本地 TTS → RVC 旁白**
 合成一条有声音、有字幕、有章节的视频。适合项目发展史、科普和需要准确图表的讲解视频。
 

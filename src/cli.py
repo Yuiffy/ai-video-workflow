@@ -43,7 +43,18 @@ def doctor(config: dict) -> dict:
         tools[name] = shutil.which(command) or (command if Path(command).is_file() else None)
     voice = config.get("rvc", {})
     health = None
-    if voice.get("mode") == "http":
+    if config.get("tts"):
+        from .tts import DEFAULT_SETTINGS, load_settings, public_settings
+        speech = load_settings(Path(config["tts"].get("settings_path", DEFAULT_SETTINGS)))
+        provider = config["tts"].get("provider", speech["provider"])
+        speech["provider"] = provider
+        status = public_settings(speech)
+        reference = speech[provider + "_reference_audio" if provider in {"cosy", "fish"} else "reference_audio"]
+        health = {"engine": provider, "local_installed": status["local_installed"],
+                  "reference_audio": bool(reference and Path(reference).is_file()),
+                  "reference_text": bool(speech[provider + "_reference_text"]) if provider in {"cosy", "fish"} else None,
+                  "api_key_saved": status["has_key"]}
+    elif voice.get("mode") == "http":
         import httpx
         try:
             health = httpx.get(voice["base_url"].rstrip("/") + "/health", timeout=4, trust_env=False).json()

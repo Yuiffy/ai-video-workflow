@@ -22,6 +22,7 @@ def main() -> int:
     parser.add_argument("--f0-method", default="rmvpe")
     parser.add_argument("--index-rate", type=float, default=0.75)
     parser.add_argument("--protect", type=float, default=0.33)
+    parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     args = parser.parse_args()
     args.input = str(Path(args.input).resolve())
     args.output = str(Path(args.output).resolve())
@@ -44,7 +45,7 @@ def main() -> int:
     from infer.modules.vc.pipeline import Pipeline
     from infer.modules.vc.utils import load_hubert
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = ("cuda" if torch.cuda.is_available() else "cpu") if args.device == "auto" else args.device
     is_half = device == "cuda"
     weight_root = root / "assets" / "weights"
     model_path = Path(args.model)

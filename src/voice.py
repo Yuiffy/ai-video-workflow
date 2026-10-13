@@ -47,9 +47,27 @@ def produce_voice(scene, output: Path, config: dict, generated_audio: Path | Non
     target = directory / f"{scene.id}.wav"
     metadata = directory / f"{scene.id}.json"
     source = Path(scene.voice.source_audio) if scene.voice.source_audio else generated_audio
-    fingerprint = digest({"narration": scene.narration, "voice": scene.voice.model_dump(),
-                          "config": cfg, "source": file_digest(source) if source else None,
-                          "voice_pipeline": 2})
+    fingerprint_input = {"narration": scene.narration, "voice": scene.voice.model_dump(),
+                         "config": cfg, "source": file_digest(source) if source else None,
+                         "voice_pipeline": 2}
+    direct_settings = None
+    if config.get("tts") and not source:
+        from .tts import DEFAULT_SETTINGS, DEFAULTS, load_settings
+        direct_settings = load_settings(Path(config["tts"].get("settings_path", DEFAULT_SETTINGS)))
+        if config["tts"].get("provider"):
+            direct_settings["provider"] = config["tts"]["provider"]
+        direct_settings["speed"] = scene.voice.speed
+        # Voice/cache identity must never contain the API credential.
+        identity = {key: direct_settings[key] for key in DEFAULTS}
+        provider = direct_settings["provider"]
+        reference_field = provider + "_reference_audio" if provider in {"cosy", "fish"} else "reference_audio"
+        if provider in {"index", "cosy", "fish"} and direct_settings[reference_field]:
+            identity["reference_sha256"] = file_digest(Path(direct_settings[reference_field]))
+            version_file = Path(direct_settings[provider + "_root"]) / "workflow-verified.json"
+            if version_file.is_file():
+                identity["runtime_version"] = file_digest(version_file)
+        fingerprint_input["direct_tts"] = identity
+    fingerprint = digest(fingerprint_input)
     if metadata.exists() and target.is_file():
         old = read_json(metadata)
         if old.get("fingerprint") == fingerprint and old.get("sha256") == file_digest(target):
@@ -61,6 +79,13 @@ def produce_voice(scene, output: Path, config: dict, generated_audio: Path | Non
     if source:
         normalize_audio(ffmpeg, source, raw)
         captions = authored_cues(scene.narration, duration(raw, ffprobe))
+    elif direct_settings:
+        from .tts import synthesize
+        synthesize(scene.narration, raw, direct_settings)
+        caption_text = scene.narration
+        if direct_settings["provider"] == "fish":
+            caption_text = re.sub(r"<\|speaker:\d+\|>|\[[^\]\n]+\]", "", caption_text)
+        captions = authored_cues(caption_text, duration(raw, ffprobe))
     else:
         position = 0
         sources = []
@@ -72,7 +97,10 @@ def produce_voice(scene, output: Path, config: dict, generated_audio: Path | Non
             position += seconds
             sources.append(path)
         concat_audio(ffmpeg, sources, raw)
-    if scene.voice.already_target_voice:
+    if direct_settings:
+        voice_source = raw
+        conversion = "direct-tts: " + direct_settings["provider"]
+    elif scene.voice.already_target_voice:
         voice_source = raw
         conversion = "skipped: input explicitly marked as target voice"
     else:
@@ -88,6 +116,6 @@ def produce_voice(scene, output: Path, config: dict, generated_audio: Path | Non
     temporary.replace(target)
     write_json(metadata, {"fingerprint": fingerprint, "sha256": file_digest(target),
                          "duration": seconds, "conversion": conversion,
-                         "caption_timing": "source-chunks" if not source else "authored-proportional",
+                         "caption_timing": "source-chunks" if not source and not direct_settings else "authored-proportional",
                          "captions": captions})
     return target
