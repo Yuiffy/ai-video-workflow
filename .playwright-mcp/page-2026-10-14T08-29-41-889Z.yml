@@ -1,0 +1,164 @@
+- main [ref=f1e2]:
+  - generic [ref=f1e3]:
+    - generic [ref=f1e4]: SUI / DOMAIN EXPANSION
+    - heading "岁己 · 领域展开" [level=1] [ref=f1e5]
+    - paragraph [ref=f1e6]: 普通帽子原设 × 咒术回战领域演出。对照原作参考、先图后视频，以及 Seedance 2.5 的表现。
+    - generic [ref=f1e7]:
+      - link "打开即梦画布" [ref=f1e8] [cursor=pointer]:
+        - /url: https://jimeng.jianying.com/ai-tool/ai-canvas/bd7c473b-dc1c-438f-88d9-f07986b669af
+      - link "播放合集" [ref=f1e9] [cursor=pointer]:
+        - /url: sui-domains-compilation.mp4
+      - link "下载完整视频包" [ref=f1e10] [cursor=pointer]:
+        - /url: sui-domains-delivery.zip
+  - generic [ref=f1e11]:
+    - generic [ref=f1e12]:
+      - text: 配音
+      - combobox "配音" [ref=f1e13]:
+        - option "生成时参考岁己真实录音" [selected]
+        - option "岁己本地克隆配音"
+    - generic [ref=f1e14]:
+      - checkbox "循环播放" [ref=f1e15]
+      - text: 循环播放
+    - generic [ref=f1e16]: 10 个已下载视频版本 · 积分授权占用上限 993 / 1000
+  - generic [ref=f1e17]:
+    - generic [ref=f1e18]:
+      - heading "无量空处" [level=2] [ref=f1e19]
+      - button "同步播放本组" [ref=f1e20]
+    - generic [ref=f1e21]:
+      - article [ref=f1e22]:
+        - generic [ref=f1e23]:
+          - generic [ref=f1e24]: 原作参考生成
+          - generic [ref=f1e25]: Seedance 2.0 Fast · 720p
+        - generic [ref=f1e27]:
+          - link "下载原生版" [ref=f1e28] [cursor=pointer]:
+            - /url: void_direct.mp4
+          - link "下载克隆配音版" [ref=f1e29] [cursor=pointer]:
+            - /url: voiced/void_direct.mp4
+        - paragraph [ref=f1e30]: 原作动画参考路线：黑白空间吞没、信息光束和黑色圆球构成较接近原版的无限空间；手印与动画分镜仍有模型改写。
+      - article [ref=f1e31]:
+        - generic [ref=f1e32]:
+          - generic [ref=f1e33]: 原作参考生成
+          - generic [ref=f1e34]: Seedance 2.5 · 480p
+        - generic [ref=f1e36]:
+          - link "下载原生版" [ref=f1e37] [cursor=pointer]:
+            - /url: void_25.mp4
+          - link "下载克隆配音版" [ref=f1e38] [cursor=pointer]:
+            - /url: voiced/void_25.mp4
+        - paragraph [ref=f1e39]: Seedance 2.5 480p：人物与空间运动更连续，低分辨率画面供对照；手印仍非逐指精确复刻。
+      - article [ref=f1e40]:
+        - generic [ref=f1e41]:
+          - generic [ref=f1e42]: 先图后视频
+          - generic [ref=f1e43]: Seedance 2.0 Fast · 720p
+        - generic [ref=f1e45]:
+          - link "下载原生版" [ref=f1e46] [cursor=pointer]:
+            - /url: void_staged.mp4
+          - link "下载克隆配音版" [ref=f1e47] [cursor=pointer]:
+            - /url: voiced/void_staged.mp4
+        - paragraph [ref=f1e48]: 关键帧路线：服装与绘画细节更精细，信息光束有纵深；开场被模型改写成室内，手印不够接近原版。
+    - group [ref=f1e49]:
+      - generic "查看生成的关键帧" [ref=f1e50]
+  - generic [ref=f1e51]:
+    - generic [ref=f1e52]:
+      - heading "伏魔御厨子" [level=2] [ref=f1e53]
+      - button "同步播放本组" [ref=f1e54]
+    - generic [ref=f1e55]:
+      - article [ref=f1e56]:
+        - generic [ref=f1e57]:
+          - generic [ref=f1e58]: 原作参考生成
+          - generic [ref=f1e59]: Seedance 2.0 Fast · 720p
+        - generic [ref=f1e61]:
+          - link "下载原生版" [ref=f1e62] [cursor=pointer]:
+            - /url: shrine_direct.mp4
+          - link "下载克隆配音版" [ref=f1e63] [cursor=pointer]:
+            - /url: voiced/shrine_direct.mp4
+        - paragraph [ref=f1e64]: 原作参考路线：暗红色展开节奏与开放领域较接近动画，红黑斩击更夸张；手印为模型改写。
+      - article [ref=f1e65]:
+        - generic [ref=f1e66]:
+          - generic [ref=f1e67]: 先图后视频
+          - generic [ref=f1e68]: Seedance 2.0 Fast · 720p
+        - generic [ref=f1e70]:
+          - link "下载原生版" [ref=f1e71] [cursor=pointer]:
+            - /url: shrine_staged.mp4
+          - link "下载克隆配音版" [ref=f1e72] [cursor=pointer]:
+            - /url: voiced/shrine_staged.mp4
+        - paragraph [ref=f1e73]: 关键帧路线：牛骨神龛、白色细斩击和石柱断面更清楚，人物原设细节更稳定；展开前已有部分神龛背景。
+    - group [ref=f1e74]:
+      - generic "查看生成的关键帧" [ref=f1e75]
+  - generic [ref=f1e76]:
+    - generic [ref=f1e77]:
+      - heading "嵌合暗翳庭" [level=2] [ref=f1e78]
+      - button "同步播放本组" [ref=f1e79]
+    - article [ref=f1e81]:
+      - generic [ref=f1e82]:
+        - generic [ref=f1e83]: 原作参考生成
+        - generic [ref=f1e84]: Seedance 2.0 Fast · 720p
+      - generic [ref=f1e86]:
+        - link "下载原生版" [ref=f1e87] [cursor=pointer]:
+          - /url: shadow_direct.mp4
+        - link "下载克隆配音版" [ref=f1e88] [cursor=pointer]:
+          - /url: voiced/shadow_direct.mp4
+      - paragraph [ref=f1e89]: 保留小猫帽紫外套；液态影海、影分身可见。生成的式神偏蛇形，和原版蛙、鵺有差异。
+  - generic [ref=f1e90]:
+    - generic [ref=f1e91]:
+      - heading "自闭圆顿裹" [level=2] [ref=f1e92]
+      - button "同步播放本组" [ref=f1e93]
+    - article [ref=f1e95]:
+      - generic [ref=f1e96]:
+        - generic [ref=f1e97]: 原作参考生成
+        - generic [ref=f1e98]: Seedance 2.0 Fast · 720p
+      - generic [ref=f1e100]:
+        - link "下载原生版" [ref=f1e101] [cursor=pointer]:
+          - /url: hands_direct.mp4
+        - link "下载克隆配音版" [ref=f1e102] [cursor=pointer]:
+          - /url: voiced/hands_direct.mp4
+      - paragraph [ref=f1e103]: 保留小猫帽形象，巨大手掌与互握手臂网格明显；部分背景手指有生成变形。
+  - generic [ref=f1e104]:
+    - generic [ref=f1e105]:
+      - heading "盖棺铁围山" [level=2] [ref=f1e106]
+      - button "同步播放本组" [ref=f1e107]
+    - paragraph [ref=f1e108]: 视频未成功生成，保留关键帧与配音供后续制作。
+    - group [ref=f1e109]:
+      - generic "查看生成的关键帧" [ref=f1e110]
+  - generic [ref=f1e111]:
+    - generic [ref=f1e112]:
+      - heading "荡蕴平线" [level=2] [ref=f1e113]
+      - button "同步播放本组" [ref=f1e114]
+    - article [ref=f1e116]:
+      - generic [ref=f1e117]:
+        - generic [ref=f1e118]: 原作参考生成
+        - generic [ref=f1e119]: Seedance 2.0 Mini · 720p
+      - generic [ref=f1e121]:
+        - link "下载原生版" [ref=f1e122] [cursor=pointer]:
+          - /url: beach_direct.mp4
+        - link "下载克隆配音版" [ref=f1e123] [cursor=pointer]:
+          - /url: voiced/beach_direct.mp4
+      - paragraph [ref=f1e124]: 小花帽原设，暗幕切换成椰林、浅海与海生式神，整体环境接近原作。
+  - generic [ref=f1e125]:
+    - generic [ref=f1e126]:
+      - heading "诛伏赐死" [level=2] [ref=f1e127]
+      - button "同步播放本组" [ref=f1e128]
+    - article [ref=f1e130]:
+      - generic [ref=f1e131]:
+        - generic [ref=f1e132]: 原作参考生成
+        - generic [ref=f1e133]: Seedance 2.0 Mini · 720p
+      - generic [ref=f1e135]:
+        - link "下载原生版" [ref=f1e136] [cursor=pointer]:
+          - /url: court_direct.mp4
+        - link "下载克隆配音版" [ref=f1e137] [cursor=pointer]:
+          - /url: voiced/court_direct.mp4
+      - paragraph [ref=f1e138]: 小蓝帽原设，法庭、审判者与断头台演出完整；人物手印由模型重新演绎。
+  - generic [ref=f1e139]:
+    - generic [ref=f1e140]:
+      - heading "坐杀博徒" [level=2] [ref=f1e141]
+      - button "同步播放本组" [ref=f1e142]
+    - article [ref=f1e144]:
+      - generic [ref=f1e145]:
+        - generic [ref=f1e146]: 原作参考生成
+        - generic [ref=f1e147]: Seedance 2.0 Mini · 720p
+      - generic [ref=f1e149]:
+        - link "下载原生版" [ref=f1e150] [cursor=pointer]:
+          - /url: gamble_direct.mp4
+        - link "下载克隆配音版" [ref=f1e151] [cursor=pointer]:
+          - /url: voiced/gamble_direct.mp4
+      - paragraph [ref=f1e152]: 小花帽原设，列车、柏青哥大奖、绿色咒力演出完整；图案改为岁己，同人化程度较高。
+  - generic [ref=f1e153]: 火山领域两次生成失败，未额外付费重试。原生配音和本地克隆配音均保留供试听；克隆版按台词时段替换人声。积分数为累计授权占用上限，不代表已核实退款后的净消费。部分手印由模型重新演绎，逐个手指未达到原版精确复刻。

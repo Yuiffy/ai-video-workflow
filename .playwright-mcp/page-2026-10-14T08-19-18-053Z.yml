@@ -1,0 +1,113 @@
+- main [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]: SUI / DOMAIN EXPANSION
+    - heading "岁己 · 领域展开" [level=1] [ref=e5]
+    - paragraph [ref=e6]: 普通帽子原设 × 咒术回战领域演出。对照原作参考、先图后视频，以及 Seedance 2.5 的表现。
+    - generic [ref=e7]:
+      - link "打开即梦画布" [ref=e8] [cursor=pointer]:
+        - /url: https://jimeng.jianying.com/ai-tool/ai-canvas/bd7c473b-dc1c-438f-88d9-f07986b669af
+      - link "播放合集" [ref=e9] [cursor=pointer]:
+        - /url: sui-domains-compilation.mp4
+      - link "下载完整视频包" [ref=e10] [cursor=pointer]:
+        - /url: sui-domains-delivery.zip
+  - generic [ref=e11]:
+    - generic [ref=e12]:
+      - text: 配音
+      - combobox "配音" [ref=e13]:
+        - option "生成时参考岁己真实录音" [selected]
+        - option "岁己本地克隆配音"
+    - generic [ref=e14]:
+      - checkbox "循环播放" [ref=e15]
+      - text: 循环播放
+    - generic [ref=e16]: 7 个已下载视频版本 · 积分授权占用上限 993 / 1000
+  - generic [ref=e17]:
+    - generic [ref=e18]:
+      - heading "无量空处" [level=2] [ref=e19]
+      - button "同步播放本组" [ref=e20]
+    - article [ref=e22]:
+      - generic [ref=e23]:
+        - generic [ref=e24]: 先图后视频
+        - generic [ref=e25]: Seedance 2.0 Fast · 720p
+      - link "下载原生版" [ref=e28] [cursor=pointer]:
+        - /url: void_staged.mp4
+      - paragraph
+    - paragraph [ref=e29]: 另有 2 个版本仍在生成。
+    - group [ref=e30]:
+      - generic "查看生成的关键帧" [ref=e31]
+  - generic [ref=e32]:
+    - generic [ref=e33]:
+      - heading "伏魔御厨子" [level=2] [ref=e34]
+      - button "同步播放本组" [ref=e35]
+    - article [ref=e37]:
+      - generic [ref=e38]:
+        - generic [ref=e39]: 原作参考生成
+        - generic [ref=e40]: Seedance 2.0 Fast · 720p
+      - link "下载原生版" [ref=e43] [cursor=pointer]:
+        - /url: shrine_direct.mp4
+      - paragraph
+    - paragraph [ref=e44]: 另有 1 个版本仍在生成。
+    - group [ref=e45]:
+      - generic "查看生成的关键帧" [ref=e46]
+  - generic [ref=e47]:
+    - generic [ref=e48]:
+      - heading "嵌合暗翳庭" [level=2] [ref=e49]
+      - button "同步播放本组" [ref=e50]
+    - article [ref=e52]:
+      - generic [ref=e53]:
+        - generic [ref=e54]: 原作参考生成
+        - generic [ref=e55]: Seedance 2.0 Fast · 720p
+      - link "下载原生版" [ref=e58] [cursor=pointer]:
+        - /url: shadow_direct.mp4
+      - paragraph
+  - generic [ref=e59]:
+    - generic [ref=e60]:
+      - heading "自闭圆顿裹" [level=2] [ref=e61]
+      - button "同步播放本组" [ref=e62]
+    - article [ref=e64]:
+      - generic [ref=e65]:
+        - generic [ref=e66]: 原作参考生成
+        - generic [ref=e67]: Seedance 2.0 Fast · 720p
+      - link "下载原生版" [ref=e70] [cursor=pointer]:
+        - /url: hands_direct.mp4
+      - paragraph
+  - generic [ref=e71]:
+    - generic [ref=e72]:
+      - heading "盖棺铁围山" [level=2] [ref=e73]
+      - button "同步播放本组" [ref=e74]
+    - paragraph [ref=e75]: 视频未成功生成，保留关键帧与配音供后续制作。
+    - group [ref=e76]:
+      - generic "查看生成的关键帧" [ref=e77]
+  - generic [ref=e78]:
+    - generic [ref=e79]:
+      - heading "荡蕴平线" [level=2] [ref=e80]
+      - button "同步播放本组" [ref=e81]
+    - article [ref=e83]:
+      - generic [ref=e84]:
+        - generic [ref=e85]: 原作参考生成
+        - generic [ref=e86]: Seedance 2.0 Mini · 720p
+      - link "下载原生版" [ref=e89] [cursor=pointer]:
+        - /url: beach_direct.mp4
+      - paragraph
+  - generic [ref=e90]:
+    - generic [ref=e91]:
+      - heading "诛伏赐死" [level=2] [ref=e92]
+      - button "同步播放本组" [ref=e93]
+    - article [ref=e95]:
+      - generic [ref=e96]:
+        - generic [ref=e97]: 原作参考生成
+        - generic [ref=e98]: Seedance 2.0 Mini · 720p
+      - link "下载原生版" [ref=e101] [cursor=pointer]:
+        - /url: court_direct.mp4
+      - paragraph
+  - generic [ref=e102]:
+    - generic [ref=e103]:
+      - heading "坐杀博徒" [level=2] [ref=e104]
+      - button "同步播放本组" [ref=e105]
+    - article [ref=e107]:
+      - generic [ref=e108]:
+        - generic [ref=e109]: 原作参考生成
+        - generic [ref=e110]: Seedance 2.0 Mini · 720p
+      - link "下载原生版" [ref=e113] [cursor=pointer]:
+        - /url: gamble_direct.mp4
+      - paragraph
+  - generic [ref=e114]: 火山领域两次生成失败，未额外付费重试。原生配音和本地克隆配音均保留供试听；克隆版按台词时段替换人声。积分数为累计授权占用上限，不代表已核实退款后的净消费。部分手印由模型重新演绎，逐个手指未达到原版精确复刻。
