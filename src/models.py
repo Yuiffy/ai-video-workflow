@@ -28,6 +28,7 @@ class Scene(BaseModel):
     voice: VoiceSpec = Field(default_factory=VoiceSpec)
     image_prompt: str | None = None
     generate_video: bool = True
+    motion_plan: str | None = None
 
 
 class Project(BaseModel):
@@ -57,6 +58,8 @@ class Project(BaseModel):
             if data.get(key):
                 data[key] = str((base / data[key]).resolve())
         for scene in data["scenes"]:
+            if scene.get("motion_plan"):
+                scene["motion_plan"] = str((base / scene["motion_plan"]).resolve())
             for key in ("source_audio", "reference_audio"):
                 if scene.get("voice", {}).get(key):
                     scene["voice"][key] = str((base / scene["voice"][key]).resolve())

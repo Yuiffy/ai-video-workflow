@@ -76,3 +76,49 @@ V4 重新生成了 18 段“乖巧萌妹”TTS，经过 suiV2 +4 转声；源 MP
 运行时让本地配置的 `output_dir` 指向 `outputs-v4-pagewise`，并设置
 `render.subtitle_margin_ratio: 0.18`。先执行 `voice` 再执行 `record`，
 不要用旧音频元数据去配新文案。实际音色结果、字幕时序与积分报价仍随服务端版本变化。
+
+## 可选的动作、落稳与阅读时序
+
+`Scene.motion_plan` 可以指向相对 project.json 的 JSON 文件。它把旁白时间和页面动画绑定；
+省略时仍使用原来的 `renderAt({slide,time,duration})`。时序编译在 `src/motion_plan.py`，
+录制和缓存接入分别在 `src/ppt_recorder.py`、`src/render.py`。
+
+适合的动作包括：录播分段写入、证据流向处理节点、输出分流、审核状态变化。
+每个节拍只安排一个主要动作，动作结束后留时间看清结果。这里的 0.5 秒是程序最低值，
+不是观众阅读时间的普适标准；长文案、结论和标识需要更长停留，并应看有声预览调整。
+此方法参考 EAC 所收录的 Video Shotcraft 中的 motion purpose、settle/hold 原则，
+本项目自行实现 HTML 帧时钟，不引入其 Remotion 组件或素材库。
+
+示例结构（`audioSha256` 必须替换为当前 `voice/<scene>.wav` 的实际 SHA-256）：
+
+```json
+{
+  "version": 1,
+  "sceneId": "overview",
+  "audioSha256": "<current narration SHA-256>",
+  "audioDuration": 8.0,
+  "fps": 24,
+  "beats": [
+    {"id": "evidence-flow", "action": "证据进入审核节点", "start": 0, "settle": 1.2, "end": 4, "minimumHold": 1},
+    {"id": "review-result", "action": "审核后显示结果", "start": 4, "settle": 5, "end": 8, "minimumHold": 1}
+  ]
+}
+```
+
+- `start/settle/end` 使用场景原始配音秒数；`[start,settle)` 是动作，`[settle,end)` 是停留。
+  多个主要节拍必须按顺序且不重叠；帧量化后仍须满足停留时间。节拍之间可以留空。
+- HTML 声明 `window.motionPlanVersion = 1`，在 `renderAt` 中读取新增的 `motion`。
+  它包含 `frame/fps/scene/active` 以及各 beat 的 `id/action/phase/progress/visible`。
+  页面按真实语义实现动作，例如按 `progress` 绘制连接线；不要把相同的缩放动效套在所有节点上。
+  `complete` 表示该节拍已结束，`visible` 仍为 true；页面决定保留结果或明确转场。
+- 状态只依赖帧时间。每次调用都完整设置相关 DOM 样式，使先到末帧再倒回首帧也能复现。
+  不用 `Date.now()`、定时器或累加进度录制动画。
+- 场景有生成视频开头时，HTML 的本地 `time` 从零开始，`motion.frame` 则自动包含开头时长。
+  所有 motion beat 必须落在 HTML 时间窗里；完整 HTML 与混合视频若时间窗不同，应分别编写时序。
+- 换配音、帧率或场景后会拒绝旧计划；改变计划会使场景缓存失效。时间线 JSON 保存最终帧数与
+  hold 证据。仅声明版本不能证明页面实际消费了时序，必须抽查动作中、落稳后与结尾，并核对烧字幕成片。
+
+验收使用同一配音、文案、图形、分辨率和编码参数；同时保留当前页作为对照。
+记录动作是否表达了关系、末态是否可读、字幕是否遮挡、是否能任意定位复现。
+字幕按字数估出的时间不能当作精确语音对齐；未试听校准时必须保留这一限制。
+测试入口：`python -m unittest tests.test_motion_plan tests.test_media_integration`。

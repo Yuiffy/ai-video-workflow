@@ -5,6 +5,7 @@ import math
 import subprocess
 from pathlib import Path
 from .storage import digest, file_digest
+from .motion_plan import MotionPlan
 
 
 def deck_digest(html: Path) -> str:
@@ -14,12 +15,15 @@ def deck_digest(html: Path) -> str:
     return digest([(str(p.relative_to(html.parent)), file_digest(p)) for p in assets])
 
 
-def record_scene(page, slide: int, seconds: float, output: Path, config: dict) -> Path:
+def record_scene(page, slide: int, seconds: float, output: Path, config: dict,
+                 motion_plan: MotionPlan | None = None) -> Path:
     fps = int(config.get("recording", {}).get("fps", 24))
     size = config.get("recording", {}).get("viewport", {"width": 1920, "height": 1080})
     frames = math.ceil(seconds * fps)
     if frames <= 0:
         raise ValueError("HTML segment must contain at least one frame")
+    if motion_plan is not None and not page.evaluate("window.motionPlanVersion === 1"):
+        raise ValueError("Deck must explicitly support motionPlanVersion=1 before using a motion plan")
     output.parent.mkdir(parents=True, exist_ok=True)
     partial = output.with_name(output.stem + ".partial.mp4")
     args = [config.get("ffmpeg_bin", "ffmpeg"), "-y", "-v", "error", "-f", "image2pipe",
@@ -31,8 +35,10 @@ def record_scene(page, slide: int, seconds: float, output: Path, config: dict) -
         encoder = subprocess.Popen(args, stdin=subprocess.PIPE, stderr=log, stdout=subprocess.DEVNULL)
         try:
             for frame in range(frames):
-                page.evaluate("value => window.renderAt(value)",
-                              {"slide": slide, "time": frame / fps, "duration": seconds})
+                clock = {"slide": slide, "time": frame / fps, "duration": seconds}
+                if motion_plan is not None:
+                    clock["motion"] = motion_plan.state_at(frame / fps)
+                page.evaluate("value => window.renderAt(value)", clock)
                 encoder.stdin.write(page.screenshot(type="jpeg", quality=92))
             encoder.stdin.close()
             if encoder.wait(timeout=120):

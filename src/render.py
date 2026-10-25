@@ -7,6 +7,7 @@ from pathlib import Path
 from .media import concat_manifest, duration, probe, run
 from .ppt_recorder import deck_digest, open_deck, record_scene
 from .storage import digest, file_digest, read_json, write_json
+from .motion_plan import compile_motion_plan
 
 
 def stamp(seconds: float, ass=False) -> str:
@@ -62,17 +63,23 @@ def render_project(pipeline, html_only=False) -> Path:
                 shot_frames = min(round(config.get("render", {}).get("shot_seconds", 6) * fps),
                                   total_frames // 2, math.floor(duration(shot, ffprobe) * fps)) if shot else 0
                 html_seconds = (total_frames - shot_frames) / fps
+                motion = compile_motion_plan(read_json(Path(scene.motion_plan)), scene_id=scene.id,
+                    audio_sha256=file_digest(audio), audio_duration=seconds, fps=fps,
+                    html_start=shot_frames / fps) if scene.motion_plan else None
                 work = root / scene.id
                 work.mkdir(parents=True, exist_ok=True)
                 target = work / "scene.mp4"
                 fingerprint = digest({"audio": file_digest(audio), "shot": file_digest(shot) if shot else None,
                                       "deck": deck_hash, "config": config.get("render"),
                                       "recording": config.get("recording"), "slide": slide, "version": 1})
+                if motion is not None:
+                    fingerprint = digest({"base": fingerprint, "motion": motion.fingerprint})
                 meta = work / "render.json"
                 cached = meta.exists() and target.exists() and read_json(meta).get("fingerprint") == fingerprint
                 if not cached:
                     print(f"render {scene.id}: {scene_seconds:.2f}s, HTML {html_seconds:.2f}s", flush=True)
-                    html_clip = record_scene(page, slide, html_seconds, work / "html.mp4", config)
+                    html_clip = record_scene(page, slide, html_seconds, work / "html.mp4", config,
+                                             motion_plan=motion)
                     segments = []
                     if shot_frames:
                         shot_clip = work / "shot.mp4"
@@ -97,7 +104,8 @@ def render_project(pipeline, html_only=False) -> Path:
                     cues.append({"text": cue["text"], "start": position + cue["start"],
                                  "end": position + cue["end"]})
                 timeline.append({"scene": scene.id, "start": position, "end": position + scene_seconds,
-                                 "shot": str(shot) if shot else None, "html_seconds": html_seconds})
+                                 "shot": str(shot) if shot else None, "html_seconds": html_seconds,
+                                 **({"motionPlan": motion.evidence()} if motion else {})})
                 position += scene_seconds
         finally:
             browser.close()

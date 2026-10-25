@@ -24,6 +24,13 @@ slide before proceeding. Do not ask one unconstrained prompt to write and animat
 the entire deck. Integrate slides through shared design tokens and one coherent
 narration timeline, then review pacing and continuity across the whole film.
 
+Give each shot one meaningful primary action, then let the result settle and
+remain readable. Use optional `Scene.motion_plan` for narration-bound frame
+timing; follow the contract in `docs/visual-explainer-workflow.md` and implement
+the actual semantic motion in the HTML deck. Changing narration requires a new
+timing plan. Compare against the existing slide with the same audio and visuals;
+inspect action, hold, end and burned-caption frames before claiming improvement.
+
 ## Produce and review
 
 - Run `python -m src.cli doctor`, then `plan <project.json> --dry-run`.
