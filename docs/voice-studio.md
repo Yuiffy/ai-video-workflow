@@ -100,18 +100,36 @@ python -m src.tts --provider fish --text '[excited]今天的天气真不错，�
 
 ## B 站弹幕姬实时朗读（PM2）
 
-`Re:TTSCat` 的自定义引擎会以 GET 下载完整音频，并把文件固定保存为 `.mp3`，因此本仓库提供了一个常驻 `SAPI + suiV2 RVC` 适配服务。它使用现有 RVC 权重和索引，启动时只加载一次模型并预热，之后按弹幕逐条合成、变声并缓存相同文本。
+`Re:TTSCat` 的自定义引擎会以 GET 下载完整音频，并把文件固定保存为 `.mp3`，因此本仓库提供了一个常驻 `SAPI + RVC v3` 适配服务。HTTP 监督进程长期在线，但默认不加载模型；第一条朗读请求才会启动模型子进程，之后按弹幕逐条合成、变声并缓存相同文本。
 
-服务在 Windows 上通过 `pythonw.exe` 启动，SAPI 和 FFmpeg 子进程也会隐藏控制台，因此朗读时不会逐条弹出黑色命令行窗口。查看运行状态请使用 `pm2 logs danmaku-tts`。
+服务在 Windows 上通过 `pythonw.exe` 启动。SAPI 合成本和 MP3 编码都在常驻 worker 内完成，每条弹幕不会再启动 `sapi_tts.py`、FFmpeg 或其他子进程，因此从结构上消除了逐条黑色命令行窗口。模型空闲 5 分钟后会自动退出，把内存和显存还给系统；HTTP 接口仍然可用。查看运行状态请使用 `pm2 logs danmaku-tts`。
+
+零窗口启动请双击 `tools\start_danmaku_tts_silent.vbs`。它通过 `wscript.exe` 和
+`pythonw.exe` 直接调用 PM2 的 Node 入口，不打开 PowerShell、CMD 或 Node 控制台。
+需要停止、重启、预热或查看状态时，可以给同一个 VBS 传入 `/stop`、`/restart`、
+`/warm` 或 `/status`：
+
+```powershell
+wscript.exe ".\tools\start_danmaku_tts_silent.vbs" /restart
+wscript.exe ".\tools\start_danmaku_tts_silent.vbs" /stop
+```
+
+调试时仍可使用下面这个带控制台的命令；正常登录启动不要使用它，而应创建指向
+`wscript.exe "D:\workspace\myrepo\ai-video-workflow\tools\start_danmaku_tts_silent.vbs"`
+的快捷方式。
 
 ```powershell
 .\tools\start_danmaku_tts.ps1
 ```
 
-脚本通过仓库根目录的 `ecosystem.danmaku-tts.config.cjs` 启动 PM2 进程，并执行 `pm2 save`。首次启动要等模型和预热完成，成功后会显示 `http://127.0.0.1:7910/tts`。然后在 `Re:TTSCat` 的“高级选项”中设置：
+静默启动器直接运行 `node.exe` 和 PM2 的 `bin/pm2` 脚本，不经过 `pm2.cmd`，并把
+`PM2_HOME` 固定到当前用户的 `.pm2`，避免误用 `D:\etc\.pm2`。PM2 配置也显式设置了
+`windowsHide: true`。启动器通过仓库根目录的 `ecosystem.danmaku-tts.config.cjs`
+启动 PM2 进程，并执行 `pm2 save`。默认启动只拉起约 22 MiB 工作集的监督进程，
+状态返回 `cold`。然后在 `Re:TTSCat` 的“高级选项”中设置：
 
 - TTS 引擎：`用户自定义引擎`
-- 自定义 TTS 引擎 URL：`http://127.0.0.1:7910/tts?text=$TTSTEXT&pitch=5`
+- 自定义 TTS 引擎 URL：`http://127.0.0.1:7910/tts?text=$TTSTEXT`
 - 请求方法：`GET`
 - 启用 URL 编码：开启
 - HTTP 身份验证：关闭
@@ -121,26 +139,50 @@ python -m src.tts --provider fish --text '[excited]今天的天气真不错，�
 ```powershell
 .\tools\start_danmaku_tts.ps1 -Stop
 .\tools\start_danmaku_tts.ps1 -Restart
+.\tools\start_danmaku_tts.ps1 -Warm
 pm2 logs danmaku-tts
 ```
 
-RVC 是变声而非独立 TTS，所以音色相似度受 SAPI 源声线影响；URL 中的 `&pitch=5` 是已经试听确认的固定音高，删掉参数后会使用 `config.json` 里的默认值。这套服务优先保证弹幕队列的低延迟，不等同于工作台里 CosyVoice 直接克隆的听感。实测本机 CosyVoice 单条约需 45–75 秒，不适合直播。
+RVC 是变声而非独立 TTS，所以音色相似度受 SAPI 源声线影响。当前 `config.json` 使用 `sui_v3_48k.pth` 和对应的 48 kHz 索引，默认音高为 `+1`；URL 不写 `pitch` 时使用该默认值。这套服务优先保证弹幕队列的低延迟，不等同于工作台里 CosyVoice 直接克隆的听感。实测本机 CosyVoice 单条约需 45–75 秒，不适合直播。
 
-本机加载后的工作集约 2.0 GiB、私有内存约 8.2 GiB，GPU 显存增加约 0.7–0.9 GiB；首次请求约 1.3–2.0 秒，缓存命中约 0.25 秒。模型预热通常需要 25–50 秒，进程会一直占用显存，因此运行视频生成任务前应先停止弹幕朗读服务。
+本机实测冷启动监督进程工作集约 22 MiB、私有内存约 12 MiB。v3 worker 加载后工作集约 2.15 GiB、私有内存约 7.19 GiB；热请求约 1.6–2.1 秒，缓存命中低于 0.1 秒。worker 单次合成的内部耗时约为 SAPI 0.1 秒、RVC 1.4–1.8 秒、MP3 0.03–0.05 秒。建立索引缓存时冷加载约 37–40 秒，复用缓存后约 27–37 秒，取决于系统和 GPU 当前负载。
+
+v3 原始索引约 1.12 GB、36.3 万条向量。RVC 原本会在每条请求中重新读取整个索引并重建向量表，无法满足实时使用。本服务第一次加载时将其抽样为 6.5 万条并写成约 302 MB 的本地 flat L2 / 向量缓存，之后模型进程直接复用，不再逐条重读大索引。该抽样是为低延迟弹幕做的速度取舍，不等同于离线高质量长音频也应使用同一配置。
+
+直播前可以预热，避免第一条弹幕等待模型加载：
+
+```powershell
+Invoke-RestMethod 'http://127.0.0.1:7910/warm'
+Invoke-RestMethod 'http://127.0.0.1:7910/unload'
+```
+
+也可以设置不同的闲置回收时间，最小 30 秒：
+
+```powershell
+.\tools\start_danmaku_tts.ps1 -Restart -IdleUnloadSeconds 600
+```
 
 需要换 RVC 权重时可用 PM2 环境变量覆盖本机配置，不修改 `config.json`：
 
 ```powershell
 $env:DANMAKU_RVC_MODEL = 'D:/path/to/sui_v3_48k.pth'
 $env:DANMAKU_RVC_INDEX = 'D:/path/to/sui_v3_48k.index'
-$env:DANMAKU_RVC_PITCH = '5'
+$env:DANMAKU_RVC_PITCH = '1'
 .\tools\start_danmaku_tts.ps1 -Restart
 ```
 
-模型加载后仍会占用显存；如果同时运行视频生成或其他大型 TTS，需要先停掉弹幕朗读服务。插件下载不到音频时会按自身设置重试，所以调试接口时可先访问 `http://127.0.0.1:7910/health` 确认 `status` 为 `ready`。
+模型加载期间仍会占用显存；如果同时运行视频生成或其他大型 TTS，可以调用 `/unload` 立即释放。插件下载不到音频时会按自身设置重试，所以直播前应预热，或先访问 `http://127.0.0.1:7910/health` 确认 `status` 为 `ready`。
+
+## 声音方案对照页
+
+启动配音工作台后打开 `http://127.0.0.1:7899/tts-choice`，可试听 RVC v2、当前 RVC v3、CosyVoice 3、IndexTTS 2.5 和 Fish Speech 的样例，并对照 MiniMax、VoxCPM2 与 GPT-SoVITS 的延迟、占用和适用场景。页面也能预热或立即卸载弹幕模型；选择与备注保存在 `outputs/voice-studio/tts-choice.json`。
+
+```powershell
+.\tools\start_voice_studio.ps1
+```
 
 `pm2 save` 会保存当前进程列表，但 Windows 登录后还需要执行一次 `pm2 resurrect` 才会恢复进程。可以把下面的命令放进登录启动项，或创建一个“登录时运行”的 Windows 计划任务：
 
 ```powershell
-powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "D:\workspace\myrepo\ai-video-workflow\tools\start_danmaku_tts.ps1"
+wscript.exe "D:\workspace\myrepo\ai-video-workflow\tools\start_danmaku_tts_silent.vbs"
 ```

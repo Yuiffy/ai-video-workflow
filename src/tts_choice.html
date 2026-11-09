@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="studio-token" content="__TOKEN__">
+  <title>声音方案对照</title>
+  <link rel="stylesheet" href="/tts-choice.css">
+  <script src="/tts-choice.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="topline"><a href="/">配音工作台</a><span>岁己声线方案</span></div>
+      <h1>听一下，再决定。</h1>
+      <p>样例来自本机已验证输出；未生成的声音不伪装成试听结果。</p>
+    </header>
+    <section class="runtime" aria-label="弹幕模型状态">
+      <div>
+        <span class="runtime-label">弹幕朗读模型</span>
+        <strong id="danmaku-status">检测中</strong>
+      </div>
+      <div class="runtime-actions">
+        <button id="warm">预热模型</button>
+        <button id="unload">立即卸载</button>
+      </div>
+    </section>
+    <section class="filters" aria-label="筛选">
+      <button class="filter active" data-filter="all">全部</button>
+      <button class="filter" data-filter="live">实时弹幕</button>
+      <button class="filter" data-filter="offline">离线旁白</button>
+      <button class="filter" data-filter="cloud">云端</button>
+    </section>
+    <section id="candidate-grid" class="grid" aria-live="polite"></section>
+    <section class="decision">
+      <div>
+        <h2>当前选择</h2>
+        <p id="selected-name">尚未选择</p>
+      </div>
+      <label for="note">试听备注</label>
+      <textarea id="note" rows="3" maxlength="1000" placeholder="例如：+5 的音高更接近，日常弹幕可以先用这套。"></textarea>
+      <div class="actions">
+        <span id="message" role="status" aria-live="polite"></span>
+        <button id="save">保存选择</button>
+      </div>
+    </section>
+    <footer>仅本机访问 · 选择保存在 outputs/voice-studio/tts-choice.json</footer>
+  </main>
+</body>
+</html>

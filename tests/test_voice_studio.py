@@ -118,6 +118,42 @@ class VoiceStudioTests(unittest.TestCase):
             thread.join()
             server.server_close()
 
+    def test_tts_choice_page_and_saved_selection(self):
+        server = create_server(self.path, 0)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with httpx.Client(base_url=f"http://127.0.0.1:{server.server_port}", trust_env=False) as client:
+                page = client.get("/tts-choice")
+                self.assertEqual(page.status_code, 200)
+                self.assertIn("声音方案对照", page.text)
+                token = re.search(r'name="studio-token" content="([^"]+)"', page.text)[1]
+                choices = client.get("/api/tts-choice").json()
+                ids = {item["id"] for item in choices["candidates"]}
+                self.assertIn("rvc-v2-p5", ids)
+                self.assertIn("rvc-v3-e10", ids)
+                self.assertIn("fish", ids)
+                cosy = next(item for item in choices["candidates"] if item["id"] == "cosy")
+                self.assertTrue(cosy["audio_url"])
+                self.assertEqual(client.get(cosy["audio_url"]).status_code, 200)
+                headers = {"X-Studio-Token": token}
+                saved = client.post(
+                    "/api/tts-choice",
+                    json={"selected": "fish", "note": "高表现力，延迟较高"},
+                    headers=headers,
+                )
+                self.assertEqual(saved.status_code, 200)
+                self.assertEqual(saved.json()["selected"], "fish")
+                self.assertEqual(client.get("/api/tts-choice").json()["note"], "高表现力，延迟较高")
+                self.assertEqual(
+                    client.post("/api/tts-choice", json={"selected": "missing"}, headers=headers).status_code,
+                    400,
+                )
+        finally:
+            server.shutdown()
+            thread.join()
+            server.server_close()
+
     def test_cosy_uses_own_reference_and_requires_transcript(self):
         root = Path(self.directory.name)
         runtime = root / '.venv/Scripts/python.exe'

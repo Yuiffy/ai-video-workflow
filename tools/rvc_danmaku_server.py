@@ -1,16 +1,16 @@
-"""Loopback MP3 bridge for Re:TTSCat using resident SAPI + suiV2 RVC.
+"""Loopback MP3 bridge for Re:TTSCat using resident SAPI + RVC.
 
 Run this with the configured RVC Python runtime. Model loading and HuBERT
-initialization happen once; each request only synthesizes, converts and encodes.
+initialization happen once; each request synthesizes, converts and encodes MP3
+inside this process without starting console child processes.
 """
 from __future__ import annotations
 
 import argparse
+import gc
 import hashlib
 import json
 import os
-import shutil
-import subprocess
 import sys
 import tempfile
 import threading
@@ -23,31 +23,65 @@ from urllib.parse import parse_qs, urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = ROOT / "config.json"
 DEFAULT_CACHE = ROOT / "outputs/danmaku-tts/cache"
-SAPI_SCRIPT = ROOT / "tools/sapi_tts.py"
+DEFAULT_INDEX_SAMPLE_SIZE = 65536
 
 
-def hidden_process_options() -> dict:
+class CachedFaissIndex:
+    """Keep the RVC retrieval index resident instead of rebuilding it per request."""
+
+    def __init__(self, index, vectors):
+        self._index = index
+        self._vectors = vectors
+
+    def reconstruct_n(self, start: int, count: int):
+        if start == 0 and count == self._index.ntotal:
+            return self._vectors
+        return self._index.reconstruct_n(start, count)
+
+    def __getattr__(self, name: str):
+        return getattr(self._index, name)
+
+
+def start_parent_watchdog(parent_pid: int) -> None:
     if os.name != "nt":
-        return {}
-    startupinfo = subprocess.STARTUPINFO()
-    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    startupinfo.wShowWindow = subprocess.SW_HIDE
-    return {
-        "creationflags": subprocess.CREATE_NO_WINDOW,
-        "startupinfo": startupinfo,
-    }
+        return
+
+    def watch() -> None:
+        import ctypes
+
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel32.OpenProcess.restype = ctypes.c_void_p
+        kernel32.WaitForSingleObject.argtypes = [ctypes.c_void_p, ctypes.c_ulong]
+        kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+        synchronize = 0x00100000
+        while True:
+            handle = kernel32.OpenProcess(synchronize, False, parent_pid)
+            if not handle:
+                os._exit(0)
+            result = kernel32.WaitForSingleObject(handle, 2000)
+            kernel32.CloseHandle(handle)
+            if result == 0:
+                os._exit(0)
+
+    threading.Thread(target=watch, name="parent-watchdog", daemon=True).start()
 
 
 class Engine:
-    def __init__(self, config: dict, cache_dir: Path, ffmpeg: str):
+    def __init__(self, config: dict, cache_dir: Path):
         self.config = config
         self.cache_dir = cache_dir.resolve()
-        self.ffmpeg = ffmpeg
         self.lock = threading.Lock()
         self.ready = threading.Event()
         self.error: str | None = None
         self.model_name = str(config["model"])
-        self.index_path = str(config.get("index", ""))
+        self.original_index_path = str(config.get("index", ""))
+        self.index_path = self.original_index_path
+        self.index_sample_size = int(
+            os.environ.get(
+                "DANMAKU_RVC_INDEX_SAMPLE_SIZE",
+                config.get("index_sample_size", DEFAULT_INDEX_SAMPLE_SIZE),
+            )
+        )
         self.pitch = int(config.get("pitch", 0))
         self.f0_method = str(config.get("f0_method", "pm"))
         self.index_rate = float(config.get("index_rate", 0.75))
@@ -57,6 +91,82 @@ class Engine:
 
     def start(self) -> None:
         threading.Thread(target=self._load, name="rvc-loader", daemon=True).start()
+
+    def _prepare_index(self, np, faiss) -> tuple[str, object | None]:
+        source_path = Path(self.original_index_path)
+        if not self.original_index_path or not source_path.is_file():
+            return "", None
+        stat = source_path.stat()
+        fingerprint = hashlib.sha256(
+            (
+                f"compact-l2-fp16-v1|{source_path.resolve()}|{stat.st_size}|"
+                f"{stat.st_mtime_ns}|{self.index_sample_size}"
+            ).encode()
+        ).hexdigest()[:16]
+        cache_dir = self.cache_dir / "indexes"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        compact_path = cache_dir / f"{fingerprint}.index"
+        vectors_path = cache_dir / f"{fingerprint}.npy"
+
+        index = None
+        vectors = None
+        if compact_path.is_file() and vectors_path.is_file():
+            try:
+                index = faiss.read_index(str(compact_path))
+                vectors = np.load(vectors_path, mmap_mode="r")
+                if index.ntotal != vectors.shape[0]:
+                    raise ValueError("cached index and vectors do not match")
+            except Exception:
+                index = None
+                vectors = None
+
+        if index is None or vectors is None:
+            started = time.monotonic()
+            source = faiss.read_index(str(source_path))
+            ntotal = int(source.ntotal)
+            if ntotal > self.index_sample_size:
+                positions = np.linspace(
+                    0,
+                    ntotal - 1,
+                    self.index_sample_size,
+                    dtype=np.int64,
+                )
+                source_vectors = source.reconstruct_n(0, ntotal)
+                sampled = np.ascontiguousarray(source_vectors[positions], dtype=np.float32)
+                del source_vectors
+            else:
+                sampled = np.ascontiguousarray(
+                    source.reconstruct_n(0, ntotal),
+                    dtype=np.float32,
+                )
+            index = faiss.IndexFlatL2(int(source.d))
+            index.add(sampled)
+            vectors = np.ascontiguousarray(sampled, dtype=np.float16)
+            index_tmp = compact_path.with_suffix(".index.tmp")
+            vectors_tmp = vectors_path.with_suffix(".npy.tmp")
+            faiss.write_index(index, str(index_tmp))
+            with vectors_tmp.open("wb") as handle:
+                np.save(handle, vectors)
+            index_tmp.replace(compact_path)
+            vectors_tmp.replace(vectors_path)
+            del source, sampled
+            gc.collect()
+            print(
+                f"prepared compact RVC index {ntotal}->{index.ntotal} "
+                f"in {time.monotonic() - started:.1f}s",
+                flush=True,
+            )
+
+        faiss_read_index = faiss.read_index
+        compact_resolved = compact_path.resolve()
+
+        def read_cached_index(path, *args, **kwargs):
+            if Path(path).resolve() == compact_resolved:
+                return CachedFaissIndex(index, vectors)
+            return faiss_read_index(path, *args, **kwargs)
+
+        faiss.read_index = read_cached_index
+        return str(compact_path), CachedFaissIndex(index, vectors)
 
     def _load(self) -> None:
         try:
@@ -70,6 +180,7 @@ class Engine:
             os.environ.setdefault("rmvpe_root", str(root / "assets" / "rmvpe"))
 
             import numpy as np
+            import faiss
             import soundfile as sf
             import torch
             from infer.lib.audio import load_audio
@@ -85,6 +196,7 @@ class Engine:
             started = time.monotonic()
             device = "cuda" if torch.cuda.is_available() else "cpu"
             is_half = device == "cuda"
+            runtime_index_path, cached_index = self._prepare_index(np, faiss)
             model_path = Path(self.model_name)
             if not model_path.is_absolute():
                 model_path = root / "assets" / "weights" / model_path
@@ -129,7 +241,9 @@ class Engine:
                 "device": device,
                 "use_f0": use_f0,
                 "version": version,
+                "cached_index": cached_index,
             }
+            self.index_path = runtime_index_path
 
             with tempfile.TemporaryDirectory(prefix="danmaku-rvc-warmup-") as directory:
                 warm_raw = Path(directory) / "raw.wav"
@@ -146,32 +260,40 @@ class Engine:
             self.ready.set()
 
     def _sapi(self, text: str, speed: float, target: Path) -> None:
-        rate = max(-10, min(10, round((speed - 1.0) * 10)))
-        result = subprocess.run(
-            [
-                sys.executable,
-                str(SAPI_SCRIPT),
-                "--voice",
-                self.sapi_voice,
-                "--text",
-                text,
-                "--rate",
-                str(rate),
-                "--output",
-                str(target),
-            ],
-            capture_output=True,
-            timeout=30,
-            **hidden_process_options(),
-        )
-        if result.returncode or not target.is_file() or target.stat().st_size <= 44:
-            detail = result.stderr.decode("utf-8", errors="replace").strip()
-            raise RuntimeError(f"SAPI synthesis failed: {detail}")
+        import pythoncom
+        import win32com.client
 
-    def _convert(self, source: Path, target: Path) -> None:
+        rate = max(-10, min(10, round((speed - 1.0) * 10)))
+        pythoncom.CoInitialize()
+        stream = None
+        try:
+            voice = win32com.client.Dispatch("SAPI.SpVoice")
+            matches = [
+                token
+                for token in voice.GetVoices()
+                if self.sapi_voice in token.GetDescription()
+            ]
+            if not matches:
+                raise RuntimeError(f"SAPI voice is not installed: {self.sapi_voice}")
+            voice.Voice = matches[0]
+            voice.Rate = rate
+            stream = win32com.client.Dispatch("SAPI.SpFileStream")
+            target.parent.mkdir(parents=True, exist_ok=True)
+            stream.Open(str(target), 3, False)
+            voice.AudioOutputStream = stream
+            voice.Speak(text)
+            stream.Close()
+            stream = None
+        finally:
+            if stream is not None:
+                stream.Close()
+            pythoncom.CoUninitialize()
+        if not target.is_file() or target.stat().st_size <= 44:
+            raise RuntimeError("SAPI synthesis produced no audio")
+
+    def _convert(self, source: Path):
         state = self.engine_state
         np = state["np"]
-        sf = state["sf"]
         torch = state["torch"]
         audio = state["load_audio"](str(source), 16000)
         peak = np.abs(audio).max() / 0.95
@@ -199,37 +321,32 @@ class Engine:
                 self.protect,
                 None,
             )
-        sf.write(target, converted, state["target_sr"])
+        return converted
 
-    def _encode_mp3(self, source: Path, target: Path) -> None:
-        result = subprocess.run(
-            [
-                self.ffmpeg,
-                "-hide_banner",
-                "-loglevel",
-                "error",
-                "-y",
-                "-i",
-                str(source),
-                "-codec:a",
-                "libmp3lame",
-                "-b:a",
-                "128k",
-                str(target),
-            ],
-            capture_output=True,
-            timeout=60,
-            **hidden_process_options(),
-        )
-        if result.returncode or not target.is_file() or target.stat().st_size <= 0:
-            detail = result.stderr.decode("utf-8", errors="replace").strip()
-            raise RuntimeError(f"ffmpeg MP3 encoding failed: {detail}")
-
-    def _render(self, text: str, speed: float, raw: Path, output: Path) -> None:
-        converted = raw.with_name(raw.stem + "-converted.wav")
+    def _render(
+        self,
+        text: str,
+        speed: float,
+        raw: Path,
+        output: Path,
+    ) -> tuple[float, float, float]:
+        started = time.monotonic()
         self._sapi(text, speed, raw)
-        self._convert(raw, converted)
-        self._encode_mp3(converted, output)
+        sapi_elapsed = time.monotonic() - started
+        started = time.monotonic()
+        converted = self._convert(raw)
+        rvc_elapsed = time.monotonic() - started
+        started = time.monotonic()
+        self.engine_state["sf"].write(
+            output,
+            converted,
+            self.engine_state["target_sr"],
+            format="MP3",
+            subtype="MPEG_LAYER_III",
+        )
+        if not output.is_file() or output.stat().st_size <= 0:
+            raise RuntimeError("MP3 encoding produced no audio")
+        return sapi_elapsed, rvc_elapsed, time.monotonic() - started
 
     def speak(self, text: str, speed: float, pitch: int | None) -> bytes:
         if not self.ready.wait(timeout=300):
@@ -267,14 +384,18 @@ class Engine:
                 old_pitch = self.pitch
                 self.pitch = pitch
                 try:
-                    self._render(text, speed, raw, output)
+                    stages = self._render(text, speed, raw, output)
                 finally:
                     self.pitch = old_pitch
                 data = output.read_bytes()
                 temporary = cache_path.with_suffix(".tmp")
                 temporary.write_bytes(data)
                 temporary.replace(cache_path)
-            print(f"rendered elapsed_seconds={time.monotonic() - started:.2f}", flush=True)
+            print(
+                f"rendered elapsed_seconds={time.monotonic() - started:.2f} "
+                f"sapi={stages[0]:.2f} rvc={stages[1]:.2f} mp3={stages[2]:.2f}",
+                flush=True,
+            )
             return data
 
 
@@ -309,7 +430,8 @@ class Handler(BaseHTTPRequestHandler):
             status = "ready" if engine.ready.is_set() and not engine.error else "loading"
             if engine.error:
                 status = "error"
-            payload = {"status": status, "engine": "SAPI + RVC suiV2"}
+            model_name = Path(engine.model_name).stem
+            payload = {"status": status, "engine": f"SAPI + RVC {model_name}"}
             if engine.error:
                 payload["error"] = engine.error
             self.reply_json(200 if status == "ready" else 503, payload)
@@ -352,19 +474,12 @@ class Handler(BaseHTTPRequestHandler):
         return
 
 
-def read_ffmpeg(config: dict) -> str:
-    value = str(config.get("ffmpeg_bin", "ffmpeg"))
-    found = shutil.which(value)
-    if not found:
-        raise FileNotFoundError(f"ffmpeg not found: {value}")
-    return found
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--cache", type=Path, default=DEFAULT_CACHE)
     parser.add_argument("--port", type=int, default=7910)
+    parser.add_argument("--parent-pid", type=int)
     args = parser.parse_args()
     if not 1 <= args.port <= 65535:
         raise ValueError("invalid port")
@@ -377,8 +492,10 @@ def main() -> None:
     ):
         if os.environ.get(env_name):
             rvc_config[field] = os.environ[env_name]
-    engine = Engine(rvc_config, args.cache, read_ffmpeg(full_config))
+    engine = Engine(rvc_config, args.cache)
     server = Server(("127.0.0.1", args.port), engine)
+    if args.parent_pid:
+        start_parent_watchdog(args.parent_pid)
     engine.start()
     print(f"Danmaku RVC listening on http://127.0.0.1:{args.port}/tts", flush=True)
     try:
