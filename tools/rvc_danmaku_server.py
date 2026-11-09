@@ -26,6 +26,18 @@ DEFAULT_CACHE = ROOT / "outputs/danmaku-tts/cache"
 SAPI_SCRIPT = ROOT / "tools/sapi_tts.py"
 
 
+def hidden_process_options() -> dict:
+    if os.name != "nt":
+        return {}
+    startupinfo = subprocess.STARTUPINFO()
+    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    startupinfo.wShowWindow = subprocess.SW_HIDE
+    return {
+        "creationflags": subprocess.CREATE_NO_WINDOW,
+        "startupinfo": startupinfo,
+    }
+
+
 class Engine:
     def __init__(self, config: dict, cache_dir: Path, ffmpeg: str):
         self.config = config
@@ -150,6 +162,7 @@ class Engine:
             ],
             capture_output=True,
             timeout=30,
+            **hidden_process_options(),
         )
         if result.returncode or not target.is_file() or target.stat().st_size <= 44:
             detail = result.stderr.decode("utf-8", errors="replace").strip()
@@ -206,6 +219,7 @@ class Engine:
             ],
             capture_output=True,
             timeout=60,
+            **hidden_process_options(),
         )
         if result.returncode or not target.is_file() or target.stat().st_size <= 0:
             detail = result.stderr.decode("utf-8", errors="replace").strip()

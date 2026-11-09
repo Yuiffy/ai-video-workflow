@@ -102,6 +102,8 @@ python -m src.tts --provider fish --text '[excited]今天的天气真不错，�
 
 `Re:TTSCat` 的自定义引擎会以 GET 下载完整音频，并把文件固定保存为 `.mp3`，因此本仓库提供了一个常驻 `SAPI + suiV2 RVC` 适配服务。它使用现有 RVC 权重和索引，启动时只加载一次模型并预热，之后按弹幕逐条合成、变声并缓存相同文本。
 
+服务在 Windows 上通过 `pythonw.exe` 启动，SAPI 和 FFmpeg 子进程也会隐藏控制台，因此朗读时不会逐条弹出黑色命令行窗口。查看运行状态请使用 `pm2 logs danmaku-tts`。
+
 ```powershell
 .\tools\start_danmaku_tts.ps1
 ```

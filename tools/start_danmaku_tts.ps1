@@ -61,10 +61,12 @@ if (-not (Test-Path -LiteralPath $runtime)) {
 
 $env:DANMAKU_TTS_PORT = [string]$Port
 if ($pm2Exists) {
-    & pm2 restart $pm2Name --update-env
-} else {
-    & pm2 start $ecosystem --only $pm2Name --update-env
+    & pm2 delete $pm2Name --silent
+    if ($LASTEXITCODE -ne 0) {
+        throw "PM2 failed to remove the previous $pm2Name process."
+    }
 }
+& pm2 start $ecosystem --only $pm2Name --update-env
 if ($LASTEXITCODE -ne 0) {
     throw "PM2 failed to launch $pm2Name."
 }
