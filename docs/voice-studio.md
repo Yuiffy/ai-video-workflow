@@ -102,7 +102,7 @@ python -m src.tts --provider fish --text '[excited]今天的天气真不错，�
 
 `Re:TTSCat` 的自定义引擎会以 GET 下载完整音频，并把文件固定保存为 `.mp3`，因此本仓库提供了一个常驻 `SAPI + RVC v3` 适配服务。HTTP 监督进程长期在线；检测到 `Bililive_dm.exe` 后在后台预热模型，弹幕姬关闭时自动卸载。这样不会把首次弹幕的等待时间压给插件。之后按弹幕逐条合成、变声并缓存相同文本。
 
-服务在 Windows 上通过 `pythonw.exe` 启动。SAPI 合成本和 MP3 编码都在常驻 worker 内完成，每条弹幕不会再启动 `sapi_tts.py`、FFmpeg 或其他子进程，因此从结构上消除了逐条黑色命令行窗口。弹幕姬运行时模型保持热态；弹幕姬退出后 worker 自动退出，把内存和显存还给系统。需要立即给视频任务腾出资源时可调用 `/unload`，该手动卸载不会在弹幕姬继续运行时被自动预热线程立刻撤销。
+服务在 Windows 上通过 `pythonw.exe` 启动。SAPI 合成、WAV 解码与重采样、RVC 转换和 MP3 编码都在常驻 worker 内完成。RVC 上游原本的 `load_audio()` 会为每条音频启动 `ffmpeg.exe`，Windows 还可能随之短暂显示终端宿主窗口；本服务已改用 `soundfile + scipy.signal.resample_poly` 在进程内读取 WAV，因此每条弹幕不会再启动 `sapi_tts.py`、FFmpeg 或其他子进程，从结构上消除了逐条黑色命令行窗口。弹幕姬运行时模型保持热态；弹幕姬退出后 worker 自动退出，把内存和显存还给系统。需要立即给视频任务腾出资源时可调用 `/unload`，该手动卸载不会在弹幕姬继续运行时被自动预热线程立刻撤销。
 
 零窗口启动请双击 `tools\start_danmaku_tts_silent.vbs`。它通过 `wscript.exe` 和
 `pythonw.exe` 直接调用 PM2 的 Node 入口，不打开 PowerShell、CMD 或 Node 控制台。

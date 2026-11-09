@@ -2,7 +2,8 @@
 
 Run this with the configured RVC Python runtime. Model loading and HuBERT
 initialization happen once; each request synthesizes, converts and encodes MP3
-inside this process without starting console child processes.
+inside this process. WAV decoding and resampling also stay in-process, so a
+request never starts an FFmpeg child process or its Windows console host.
 """
 from __future__ import annotations
 
@@ -10,6 +11,7 @@ import argparse
 import gc
 import hashlib
 import json
+import math
 import os
 import sys
 import tempfile
@@ -183,7 +185,6 @@ class Engine:
             import faiss
             import soundfile as sf
             import torch
-            from infer.lib.audio import load_audio
             from infer.lib.infer_pack.models import (
                 SynthesizerTrnMs256NSFsid,
                 SynthesizerTrnMs256NSFsid_nono,
@@ -233,7 +234,7 @@ class Engine:
                 "np": np,
                 "sf": sf,
                 "torch": torch,
-                "load_audio": load_audio,
+                "load_audio": self._load_audio,
                 "pipeline": pipeline,
                 "hubert": hubert,
                 "net_g": net_g,
@@ -258,6 +259,30 @@ class Engine:
             print(f"engine failed: {self.error}", file=sys.stderr, flush=True)
         finally:
             self.ready.set()
+
+    @staticmethod
+    def _load_audio(path: str, sr: int = 16000):
+        import numpy as np
+        import soundfile as sf
+        from scipy.signal import resample_poly
+
+        audio, source_sr = sf.read(
+            str(path),
+            dtype="float32",
+            always_2d=True,
+        )
+        if audio.shape[1] > 1:
+            audio = audio.mean(axis=1)
+        else:
+            audio = audio[:, 0]
+        if source_sr != sr:
+            gcd = math.gcd(int(source_sr), int(sr))
+            audio = resample_poly(
+                audio,
+                int(sr) // gcd,
+                int(source_sr) // gcd,
+            )
+        return np.ascontiguousarray(audio, dtype=np.float32)
 
     def _sapi(self, text: str, speed: float, target: Path) -> None:
         import pythoncom

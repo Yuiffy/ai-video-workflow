@@ -50,6 +50,15 @@ class DanmakuTtsLauncherTests(unittest.TestCase):
         self.assertIn("shell.Run command, 0, False", source)
         self.assertNotIn("powershell.exe", source.lower())
 
+    def test_rvc_worker_never_uses_ffmpeg_based_audio_loader(self):
+        source = (ROOT / "tools/rvc_danmaku_server.py").read_text(encoding="utf-8")
+        self.assertNotIn("from infer.lib.audio import load_audio", source)
+        self.assertNotIn('"load_audio": load_audio', source)
+        self.assertIn('"load_audio": self._load_audio', source)
+        self.assertIn("import soundfile as sf", source)
+        self.assertIn("from scipy.signal import resample_poly", source)
+        self.assertIn("never starts an FFmpeg child process", source)
+
 
 if __name__ == "__main__":
     unittest.main()
