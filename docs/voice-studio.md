@@ -100,9 +100,9 @@ python -m src.tts --provider fish --text '[excited]今天的天气真不错，�
 
 ## B 站弹幕姬实时朗读（PM2）
 
-`Re:TTSCat` 的自定义引擎会以 GET 下载完整音频，并把文件固定保存为 `.mp3`，因此本仓库提供了一个常驻 `SAPI + RVC v3` 适配服务。HTTP 监督进程长期在线，但默认不加载模型；第一条朗读请求才会启动模型子进程，之后按弹幕逐条合成、变声并缓存相同文本。
+`Re:TTSCat` 的自定义引擎会以 GET 下载完整音频，并把文件固定保存为 `.mp3`，因此本仓库提供了一个常驻 `SAPI + RVC v3` 适配服务。HTTP 监督进程长期在线；检测到 `Bililive_dm.exe` 后在后台预热模型，弹幕姬关闭时自动卸载。这样不会把首次弹幕的等待时间压给插件。之后按弹幕逐条合成、变声并缓存相同文本。
 
-服务在 Windows 上通过 `pythonw.exe` 启动。SAPI 合成本和 MP3 编码都在常驻 worker 内完成，每条弹幕不会再启动 `sapi_tts.py`、FFmpeg 或其他子进程，因此从结构上消除了逐条黑色命令行窗口。模型空闲 5 分钟后会自动退出，把内存和显存还给系统；HTTP 接口仍然可用。查看运行状态请使用 `pm2 logs danmaku-tts`。
+服务在 Windows 上通过 `pythonw.exe` 启动。SAPI 合成本和 MP3 编码都在常驻 worker 内完成，每条弹幕不会再启动 `sapi_tts.py`、FFmpeg 或其他子进程，因此从结构上消除了逐条黑色命令行窗口。弹幕姬运行时模型保持热态；弹幕姬退出后 worker 自动退出，把内存和显存还给系统。需要立即给视频任务腾出资源时可调用 `/unload`，该手动卸载不会在弹幕姬继续运行时被自动预热线程立刻撤销。
 
 零窗口启动请双击 `tools\start_danmaku_tts_silent.vbs`。它通过 `wscript.exe` 和
 `pythonw.exe` 直接调用 PM2 的 Node 入口，不打开 PowerShell、CMD 或 Node 控制台。
@@ -125,7 +125,7 @@ wscript.exe ".\tools\start_danmaku_tts_silent.vbs" /stop
 静默启动器直接运行 `node.exe` 和 PM2 的 `bin/pm2` 脚本，不经过 `pm2.cmd`，并把
 `PM2_HOME` 固定到当前用户的 `.pm2`，避免误用 `D:\etc\.pm2`。PM2 配置也显式设置了
 `windowsHide: true`。启动器通过仓库根目录的 `ecosystem.danmaku-tts.config.cjs`
-启动 PM2 进程，并执行 `pm2 save`。默认启动只拉起约 22 MiB 工作集的监督进程，
+启动 PM2 进程，并执行 `pm2 save`。弹幕姬未启动时只保留约 22 MiB 工作集的监督进程，
 状态返回 `cold`。然后在 `Re:TTSCat` 的“高级选项”中设置：
 
 - TTS 引擎：`用户自定义引擎`
@@ -145,7 +145,7 @@ pm2 logs danmaku-tts
 
 RVC 是变声而非独立 TTS，所以音色相似度受 SAPI 源声线影响。当前 `config.json` 使用 `sui_v3_48k.pth` 和对应的 48 kHz 索引，默认音高为 `+1`；URL 不写 `pitch` 时使用该默认值。这套服务优先保证弹幕队列的低延迟，不等同于工作台里 CosyVoice 直接克隆的听感。实测本机 CosyVoice 单条约需 45–75 秒，不适合直播。
 
-本机实测冷启动监督进程工作集约 22 MiB、私有内存约 12 MiB。v3 worker 加载后工作集约 2.15 GiB、私有内存约 7.19 GiB；热请求约 1.6–2.1 秒，缓存命中低于 0.1 秒。worker 单次合成的内部耗时约为 SAPI 0.1 秒、RVC 1.4–1.8 秒、MP3 0.03–0.05 秒。建立索引缓存时冷加载约 37–40 秒，复用缓存后约 27–37 秒，取决于系统和 GPU 当前负载。
+本机实测冷启动监督进程工作集约 22 MiB、私有内存约 12 MiB。v3 worker 加载后工作集约 2.15 GiB、私有内存约 7.19 GiB；热请求约 1.6–2.1 秒，缓存命中低于 0.1 秒。worker 单次合成的内部耗时约为 SAPI 0.1 秒、RVC 1.4–1.8 秒、MP3 0.03–0.05 秒。建立索引缓存时冷加载约 37–40 秒，复用缓存后约 24–37 秒，取决于系统和 GPU 当前负载。插件不会一直等待冷加载，所以不能在首条弹幕到达时才启动模型；进程检测预热就是为这个限制保留的。
 
 v3 原始索引约 1.12 GB、36.3 万条向量。RVC 原本会在每条请求中重新读取整个索引并重建向量表，无法满足实时使用。本服务第一次加载时将其抽样为 6.5 万条并写成约 302 MB 的本地 flat L2 / 向量缓存，之后模型进程直接复用，不再逐条重读大索引。该抽样是为低延迟弹幕做的速度取舍，不等同于离线高质量长音频也应使用同一配置。
 
@@ -156,11 +156,13 @@ Invoke-RestMethod 'http://127.0.0.1:7910/warm'
 Invoke-RestMethod 'http://127.0.0.1:7910/unload'
 ```
 
-也可以设置不同的闲置回收时间，最小 30 秒：
+弹幕姬未运行时，也可以设置不同的闲置回收时间，最小 30 秒：
 
 ```powershell
 .\tools\start_danmaku_tts.ps1 -Restart -IdleUnloadSeconds 600
 ```
+
+若不需要进程检测预热，可设置 `DANMAKU_TTS_AUTO_WARM=0` 后重启；此时第一条请求会承担完整的模型加载时间。
 
 需要换 RVC 权重时可用 PM2 环境变量覆盖本机配置，不修改 `config.json`：
 

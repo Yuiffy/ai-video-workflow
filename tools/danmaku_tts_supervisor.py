@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = ROOT / "config.json"
 WORKER_SCRIPT = ROOT / "tools/rvc_danmaku_server.py"
 DEFAULT_CACHE = ROOT / "outputs/danmaku-tts/cache"
+DEFAULT_HOST_PROCESS = "Bililive_dm.exe"
 
 
 def hidden_process_options() -> dict:
@@ -38,6 +39,54 @@ def free_loopback_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.bind(("127.0.0.1", 0))
         return int(sock.getsockname()[1])
+
+
+def host_process_running(process_name: str) -> bool:
+    """Check the danmaku host process without spawning tasklist.exe."""
+    if os.name != "nt" or not process_name:
+        return False
+
+    import ctypes
+    from ctypes import wintypes
+
+    class ProcessEntry32W(ctypes.Structure):
+        _fields_ = [
+            ("dwSize", wintypes.DWORD),
+            ("cntUsage", wintypes.DWORD),
+            ("th32ProcessID", wintypes.DWORD),
+            ("th32DefaultHeapID", ctypes.c_size_t),
+            ("th32ModuleID", wintypes.DWORD),
+            ("cntThreads", wintypes.DWORD),
+            ("th32ParentProcessID", wintypes.DWORD),
+            ("pcPriClassBase", wintypes.LONG),
+            ("dwFlags", wintypes.DWORD),
+            ("szExeFile", wintypes.WCHAR * 260),
+        ]
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
+    kernel32.CreateToolhelp32Snapshot.argtypes = [wintypes.DWORD, wintypes.DWORD]
+    kernel32.Process32FirstW.argtypes = [wintypes.HANDLE, ctypes.POINTER(ProcessEntry32W)]
+    kernel32.Process32NextW.argtypes = [wintypes.HANDLE, ctypes.POINTER(ProcessEntry32W)]
+    kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+
+    snapshot = kernel32.CreateToolhelp32Snapshot(0x00000002, 0)
+    invalid_handle = ctypes.c_void_p(-1).value
+    if not snapshot or snapshot == invalid_handle:
+        return False
+
+    wanted = process_name.casefold()
+    entry = ProcessEntry32W()
+    entry.dwSize = ctypes.sizeof(entry)
+    try:
+        available = kernel32.Process32FirstW(snapshot, ctypes.byref(entry))
+        while available:
+            if entry.szExeFile.casefold() == wanted:
+                return True
+            available = kernel32.Process32NextW(snapshot, ctypes.byref(entry))
+    finally:
+        kernel32.CloseHandle(snapshot)
+    return False
 
 
 def worker_request(port: int, path: str, timeout: float = 5) -> tuple[int, bytes]:
@@ -61,6 +110,13 @@ class WorkerManager:
         self.request_lock = threading.Lock()
         self.stop_event = threading.Event()
         self.ready_event = threading.Event()
+        self.host_process = os.environ.get(
+            "DANMAKU_TTS_HOST_PROCESS",
+            DEFAULT_HOST_PROCESS,
+        )
+        self.auto_warm = os.environ.get("DANMAKU_TTS_AUTO_WARM", "1") != "0"
+        self.host_was_running = False
+        self.manual_unload = False
         self.process: subprocess.Popen | None = None
         self.worker_port: int | None = None
         self.ready = False
@@ -79,14 +135,31 @@ class WorkerManager:
             str(config["rvc"].get("model", "")),
         )
         self.cache_dir.mkdir(parents=True, exist_ok=True)
+        self.host_was_running = self._host_is_running()
         self.monitor = threading.Thread(
-            target=self._monitor_idle,
-            name="danmaku-tts-idle-monitor",
+            target=self._monitor_lifecycle,
+            name="danmaku-tts-lifecycle-monitor",
             daemon=True,
         )
         self.monitor.start()
+        if self.host_was_running:
+            threading.Thread(
+                target=self._auto_warm,
+                name="danmaku-tts-auto-warm",
+                daemon=True,
+            ).start()
+
+    def _host_is_running(self) -> bool:
+        return self.auto_warm and host_process_running(self.host_process)
+
+    def _auto_warm(self) -> None:
+        try:
+            self.warm(wait=False)
+        except Exception as exc:
+            print(f"automatic warm failed: {exc}", file=sys.stderr, flush=True)
 
     def snapshot(self) -> dict:
+        host_running = self._host_is_running()
         with self.state_lock:
             self._reap_failed_process()
             if self.state == "cold":
@@ -107,6 +180,10 @@ class WorkerManager:
                 "idle_unload_seconds": self.idle_seconds,
                 "idle_remaining_seconds": idle_remaining,
                 "last_unload_reason": self.unload_reason,
+                "auto_warm": self.auto_warm,
+                "host_process": self.host_process,
+                "host_process_running": host_running,
+                "manual_unload": self.manual_unload,
             }
             if self.error:
                 payload["error"] = self.error
@@ -223,6 +300,8 @@ class WorkerManager:
         raise TimeoutError(f"RVC worker did not become ready within {self.start_timeout}s")
 
     def warm(self, wait: bool = False) -> dict:
+        with self.state_lock:
+            self.manual_unload = False
         with self.start_lock:
             with self.state_lock:
                 self._reap_failed_process()
@@ -285,18 +364,33 @@ class WorkerManager:
                 self.ready_event.clear()
                 self.error = None
                 self.unload_reason = reason
+                self.manual_unload = reason == "manual"
                 if was_loaded:
                     self.last_unloaded_at = time.monotonic()
             if process is not None:
                 print(f"RVC worker unloaded reason={reason}", flush=True)
             return self.snapshot()
 
-    def _monitor_idle(self) -> None:
+    def _monitor_lifecycle(self) -> None:
         while not self.stop_event.wait(2):
+            host_running = self._host_is_running()
+            if host_running and not self.host_was_running:
+                self.host_was_running = True
+                if not self.manual_unload:
+                    self._auto_warm()
+            elif not host_running and self.host_was_running:
+                self.host_was_running = False
+                self.manual_unload = False
+                if self.process is not None:
+                    try:
+                        self.unload("host-exited")
+                    except Exception as exc:
+                        print(f"host-exit unload failed: {exc}", file=sys.stderr, flush=True)
             with self.state_lock:
                 should_unload = (
                     self.ready
                     and self.process is not None
+                    and not host_running
                     and time.monotonic() - self.last_used >= self.idle_seconds
                 )
             if should_unload:
@@ -386,9 +480,14 @@ def main() -> None:
         raise ValueError("invalid port")
     manager = WorkerManager(args.config, args.cache, args.idle_seconds)
     server = SupervisorServer(("127.0.0.1", args.port), manager)
+    warm_mode = (
+        f"auto-warm while {manager.host_process} is running"
+        if manager.auto_warm
+        else "model cold until first request"
+    )
     print(
         f"Danmaku TTS supervisor listening on http://127.0.0.1:{args.port}/tts; "
-        f"model cold until first request; idle unload={manager.idle_seconds}s",
+        f"{warm_mode}; idle unload={manager.idle_seconds}s",
         flush=True,
     )
     try:

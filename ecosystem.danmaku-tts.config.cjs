@@ -68,6 +68,9 @@ module.exports = {
           process.env.DANMAKU_RVC_INDEX_SAMPLE_SIZE || "65536",
         DANMAKU_TTS_IDLE_UNLOAD_SECONDS:
           process.env.DANMAKU_TTS_IDLE_UNLOAD_SECONDS || "300",
+        DANMAKU_TTS_AUTO_WARM: process.env.DANMAKU_TTS_AUTO_WARM || "1",
+        DANMAKU_TTS_HOST_PROCESS:
+          process.env.DANMAKU_TTS_HOST_PROCESS || "Bililive_dm.exe",
       },
     },
   ],

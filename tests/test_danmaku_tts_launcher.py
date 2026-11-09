@@ -28,10 +28,21 @@ class DanmakuTtsLauncherTests(unittest.TestCase):
         self.assertEqual(options["startupinfo"].wShowWindow, supervisor.subprocess.SW_HIDE)
         self.assertTrue(options["close_fds"])
 
+    @unittest.skipUnless(os.name == "nt", "Windows process snapshot")
+    def test_host_process_probe_uses_current_process_without_subprocess(self):
+        supervisor = load_module(
+            "danmaku_tts_supervisor_probe_test",
+            "tools/danmaku_tts_supervisor.py",
+        )
+        current_process = Path(__import__("sys").executable).name
+        self.assertTrue(supervisor.host_process_running(current_process))
+        self.assertFalse(supervisor.host_process_running("definitely-not-running.exe"))
+
     def test_pm2_config_uses_windowless_runtime(self):
         source = (ROOT / "ecosystem.danmaku-tts.config.cjs").read_text(encoding="utf-8")
         self.assertIn("windowsHide: true", source)
         self.assertIn('DANMAKU_TTS_SILENT: "1"', source)
+        self.assertIn('DANMAKU_TTS_AUTO_WARM', source)
 
     def test_vbs_entrypoint_uses_pythonw_and_hidden_run(self):
         source = (ROOT / "tools/start_danmaku_tts_silent.vbs").read_text(encoding="utf-8")
